@@ -44,8 +44,11 @@ def main(url, output):
     
     # Ensure paths are handled relative to project root or as absolute
     resume_text = extract_text_from_pdf(resume_path)
+    print(f"📄 Base documents parsed (Resume: {len(resume_text)} chars)")
+    print(resume_text)
     cover_text = extract_text_from_pdf(cover_path)
-    print(f"📄 Base documents parsed (Resume: {len(resume_text)} chars, Cover Letter: {len(cover_text)} chars)")
+    print(f"📄 Base documents parsed (Cover Letter: {len(cover_text)} chars)")
+    print(cover_text)
 
     # ── Process Each URL ────────────────────────────────────────────
     for i, job_url in enumerate(urls, 1):

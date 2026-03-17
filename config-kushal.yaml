@@ -1,0 +1,40 @@
+# ─── Job URLs — scraper fetches these automatically ───────────────────────────
+job_urls:
+  - "https://www.mckinsey.com/careers/search-jobs/jobs/softwareengineer-finlab-100422"
+  # - "https://www.mongodb.com/careers/jobs/7590644?gh_src=9054lnf11us"
+  # - "https://ms.wd5.myworkdayjobs.com/fr-CA/External/job/Mumbai-India/Java-Developer-Director-Software-Engineering_PT-JR024683"
+  # - "https://sprinklr.wd1.myworkdayjobs.com/careers/job/India---Haryana---Gurgaon/Senior-Product-Engineer--Backend-_110100-JOB-1?source=LinkedIn"
+  # - "https://jobs.intuit.com/..."
+  # - "https://jobs.microsoft.com/..."
+
+# ─── Job Descriptions — paste directly, no scraping needed ───────────────────
+# Each entry has a company name and a description (use | for multi-line).
+# Output files will be named: cover_letter_<company>.pdf
+job_descriptions:
+  - company: "Mckinsey and Company"
+    description: "You will be an engineer to build the next generation of enterprise intelligence. You will move beyond traditional analytics dashboards to create autonomous AI agents that automate critical workflows for forward-thinking clients across financial services, real estate, private equity, and public sectors. Using a modern AI stack, you will design systems that understand requests, reason through complex data, use tools, and act. In this role, you will make custom software tools that will be implemented directly within our client organizations. You will help us design our tech stack and make it successful. You will exercise your creative and technical skills whilst growing into a thought leader in the space of financial services and a technology leader at our firm. You will bring the best of user experience and design from the consumer software world to the enterprise. Your Growth Driving lasting impact and building long-term capabilities with our clients is not easy work. You are the kind of person who thrives in a high performance/high reward culture - doing hard things, picking yourself up when you stumble, and having the resilience to try another way forward. In return for your drive, determination, and curiosity, we'll provide the resources, mentorship, and opportunities you need to become a stronger leader faster than you ever thought possible. Your colleagues—at all levels—will invest deeply in your development, just as much as they invest in delivering exceptional results for clients. Every day, you'll receive apprenticeship, coaching, and exposure that will accelerate your growth in ways you won't find anywhere else. When you join us, you will have: Continuous learning: Our learning and apprenticeship culture, backed by structured programs, is all about helping you grow while creating an environment where feedback is clear, actionable, and focused on your development. The real magic happens when you take the input from others to heart and embrace the fast-paced learning experience, owning your journey. A voice that matters: From day one, we value your ideas and contributions. You'll make a tangible impact by offering innovative ideas and practical solutions, all while upholding our unwavering commitment to ethics and integrity. We not only encourage diverse perspectives, but they are critical in driving us toward the best possible outcomes. Global community: With colleagues across 65+ countries and over 100 different nationalities, our firm's diversity fuels creativity and helps us come up with the best solutions for our clients. Plus, you'll have the opportunity to learn from exceptional colleagues with diverse backgrounds and experiences. World-class benefits: On top of a competitive salary (based on your location, experience, and skills), we provide a comprehensive benefits package to enable holistic well-being for you and your family. Your qualifications and skills 3+ years of professional or internship experience in computer science, design, information systems, electrical engineering or related discipline; master's degree is a plus Expert proficiency in modern web technologies (JavaScript, React/Angular, HTML/CSS, Node) and a strong foundation in Python for backend development and intelligent automation Experience with, or a strong desire to master, modern AI development frameworks like Langchain for orchestrating autonomous workflows, platforms like Amazon Bedrock for leveraging foundation models, and libraries like PydanticAI for ensuring structured, reliable data outputs Proven ability to architect and deploy complex AI systems by leveraging critical tooling, including frameworks for Agent-to-Agent (A2A) communication, interoperability standards like MCP, and integrating essential components like vector databases for memory and observability tools for tracing and evaluation A strong command of UI/UX principles, applied not only to building clean user interfaces but also to designing intuitive human-in-the-loop workflows for overseeing and interacting with AI agents Experience with data visualization (e.g., D3.js) to not only represent analytics but also to create dashboards for monitoring and observing the behavior of autonomous AI agents Experience with web testing, debugging, API integration, analytics, and KPI optimization Exposure to responsive and/or native mobile development Proven record of leadership in a work setting and/or through a personal project portfolio An active GitHub and/or personal web portfolio showcasing relevant web development, workflow automation, or applied AI projects"
+
+
+# ─── Backend ──────────────────────────────────────────────────────────────────
+use_local: true
+local_model: "llama3.2"         # change to mistral, gemma3 etc. if you pull a different model
+gemini_api_key: "YOUR_ACTUAL_GEMINI_API_KEY"  # fallback when use_local: false
+tailor_resume: false             # false = copy original resume as-is, true = rewrite with Ollama
+generate_resume: false           # false = skip resume entirely, true = include resume in output
+
+# ─── Extra output locations ───────────────────────────────────────────────────
+cover_letter_copy_dir: "/Users/kushalsharma/Documents/Full Time/Cover Letter"  # extra copy destination
+
+# ─── Personal Details ─────────────────────────────────────────────────────────
+personal:
+  name: "Kushal Sharma"
+  email: "skushal746@gmail.com"
+  phone: "+91 8767716841"
+  linkedin: "linkedin.com/in/skushal746"
+  github: "github.com/skushal746"
+  location: "India"
+
+# ─── Asset Paths ──────────────────────────────────────────────────────────────
+assets:
+  resume: "assets/Resume-Kushal_Sharma-Java.pdf"
+  cover_letter: "assets/General Cover Letter.pdf"

@@ -1,0 +1,48 @@
+# Cover Letter – Backend Developer
+
+Hello,
+
+I’m a Senior Backend Engineer specializing in Java, Spring Boot, and scalable microservices, with experience building production systems for U.S. and India-based companies. I focus on clean architecture, reliable APIs, and performance at scale, which aligns well with your need for someone who can build clean, scalable, and reliable backend systems.
+
+Over the last several years, I have:
+
+- Designed and deployed RESTful APIs and distributed backend services using Java 17/21, Spring Boot, Hibernate, and MySQL/PostgreSQL on AWS, improving system performance and reliability for enterprise clients.
+- Built microservices architectures with asynchronous messaging (RabbitMQ, schedulers, Spring Batch) to handle cross-device synchronization, background processing, and high-throughput workloads with strong uptime guarantees.
+- Implemented robust security using Spring Security with OAuth2/JWT, and followed best practices for authentication, authorization, and data protection across multiple applications.
+- Optimized database access using relational databases and MongoDB, including aggregation pipelines, indexing, and caching (LRU, Redis) to reduce latency and improve throughput.
+- Maintained high code quality through TDD with JUnit and Mockito, CI/CD pipelines with Maven/Jenkins, and close collaboration with cross-functional teams (frontend, data, product).
+
+## Representative backend work
+
+1. **Enterprise SaaS backend for a U.S.-based client**  
+   - Role: Backend Engineer (Java/Spring Boot).  
+   - Built and scaled RESTful APIs and microservices using Java 17/21, Spring Boot, Hibernate, MySQL, and AWS, including ML/NLP-powered search and recommendation features to improve user engagement and query relevance.  
+   - Designed distributed schedulers and background jobs with Spring Batch and messaging to ensure high reliability and 99.9%+ uptime for enterprise customers.
+
+2. **Real-time tracking and analytics system**  
+   - Role: Backend Developer.  
+   - Developed a real-time distributed tracking backend using Spring Boot and Spring JPA, integrating with front-end clients and leveraging asynchronous processing and schedulers for cross-device synchronization.  
+   - Focused on observability, reliability, and test coverage (TDD with JUnit/Mockito) to ensure stable behavior under load.
+
+3. **High-throughput financial data microservices**  
+   - Role: Backend / Full Stack Engineer.  
+   - Architected high-throughput microservices with Java and Spring Boot (including non-blocking I/O with Spring WebFlux) to serve real-time financial data streams.  
+   - Optimized persistence with MongoDB aggregation pipelines and in-memory caching, reducing query latency and improving responsiveness for demanding clients.
+
+## How I can help on this project
+
+For your Backend Developer role, I can:
+
+- Design or refine a scalable backend architecture (service boundaries, data models, and API contracts) suited to your current and future requirements.  
+- Implement clean, well-tested RESTful APIs and supporting services with Java/Spring Boot, focusing on reliability, observability, and maintainability.  
+- Work with relational or NoSQL databases to model data effectively, tune performance, and plan safe migrations as the product evolves.  
+- Integrate third-party services and internal systems while keeping boundaries clean and failure modes well-handled.  
+- Help set up or improve CI/CD, testing, and monitoring so that changes can be shipped confidently.
+
+I’d be happy to discuss your current backend setup, immediate priorities, and roadmap, and share how I can help you improve performance, reliability, and developer productivity over the next few months.
+
+Thank you for your time and consideration.
+
+Best regards,  
+Kushal Sharma  
+[LinkedIn](https://www.linkedin.com/in/skushal746) | [GitHub](https://github.com/skushal746)

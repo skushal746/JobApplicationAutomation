@@ -22,46 +22,63 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 @click.command()
-@click.option("--url", help="Job URL")
-@click.option("--output", default="output", help="Output dir")
+@click.option("--url", help="Single job URL (overrides config).")
+@click.option("--output", default="output", help="Output directory.")
 def main(url, output):
     config = load_config(CONFIG_PATH)
     os.makedirs(output, exist_ok=True)
     
-    # Logic similar to original main.py for full-time URLs
-    # Simplified for the demonstration of the new structure
+    # ── Resolve URLs ────────────────────────────────────────────────
     if url:
-        print(f"🚀 Applying for: {url}")
-        job_text = scrape_job(url)
-        keywords = extract_keywords(job_text, config)
-        
-        # Load assets
-        resume_path = config["assets"]["resume"]
-        cover_path = config["assets"]["cover_letter"]
-        resume_text = extract_text_from_pdf(resume_path)
-        cover_text = extract_text_from_pdf(cover_path)
-        
-        # Generate
-        cover_md = generate_cover_letter(cover_text, config, keywords, job_text)
-        
-        slug = keywords.get("company_name", "company").lower().replace(" ", "_")
-        md_path = os.path.join(output, f"cover_letter_{slug}.md")
-        pdf_path = os.path.join(output, f"cover_letter_{slug}.pdf")
-        
-        with open(md_path, "w") as f:
-            f.write(cover_md)
+        urls = [url]
+    else:
+        urls = config.get("job_urls", [])
+
+    if not urls:
+        print("❌ No URLs found in config or command line.")
+        return
+
+    # ── Load Base Documents (Once) ──────────────────────────────────
+    resume_path = config["assets"]["resume"]
+    cover_path = config["assets"]["cover_letter"]
+    
+    # Ensure paths are handled relative to project root or as absolute
+    resume_text = extract_text_from_pdf(resume_path)
+    cover_text = extract_text_from_pdf(cover_path)
+    print(f"📄 Base documents parsed (Resume: {len(resume_text)} chars, Cover Letter: {len(cover_text)} chars)")
+
+    # ── Process Each URL ────────────────────────────────────────────
+    for i, job_url in enumerate(urls, 1):
+        print(f"\n[{i}/{len(urls)}] Processing: {job_url}")
+        try:
+            job_text = scrape_job(job_url)
+            keywords = extract_keywords(job_text, config)
             
-        md_to_pdf(md_path, pdf_path)
-        print(f"✅ Full-time application generated: {pdf_path}")
-        
-        # Copy to secondary location
-        copy_dir = config.get("cover_letter_copy_dir")
-        if copy_dir:
-            import shutil
-            os.makedirs(copy_dir, exist_ok=True)
-            dest = os.path.join(copy_dir, os.path.basename(pdf_path))
-            shutil.copy2(pdf_path, dest)
-            print(f"✅ Also copied to: {dest}")
+            slug = keywords.get("company_name", "company").lower().replace(" ", "_")
+            md_path = os.path.join(output, f"cover_letter_{slug}.md")
+            pdf_path = os.path.join(output, f"cover_letter_{slug}.pdf")
+            
+            # Generate tailored content
+            cover_md = generate_cover_letter(cover_text, config, keywords, job_text)
+            
+            with open(md_path, "w") as f:
+                f.write(cover_md)
+                
+            md_to_pdf(md_path, pdf_path)
+            print(f"  ✓ Generated: {pdf_path}")
+            
+            # Copy to secondary location
+            copy_dir = config.get("cover_letter_copy_dir")
+            if copy_dir:
+                import shutil
+                os.makedirs(copy_dir, exist_ok=True)
+                dest = os.path.join(copy_dir, os.path.basename(pdf_path))
+                shutil.copy2(pdf_path, dest)
+                print(f"  ✓ Also copied to: {dest}")
+                
+        except Exception as e:
+            print(f"  ❌ Failed to process {job_url}: {e}")
+
 
 
 if __name__ == "__main__":

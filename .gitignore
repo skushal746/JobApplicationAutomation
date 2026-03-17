@@ -1,0 +1,23 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output files
+output/
+portfolio_proposal.md
+portfolio_proposal.pdf
+
+# Sensitive information
+config-kushal.yaml
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

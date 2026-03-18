@@ -22,20 +22,16 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 @click.command()
-@click.option("--url", help="Single job URL (overrides config).")
 @click.option("--output", default="output", help="Output directory.")
-def main(url, output):
+def main(output):
     config = load_config(CONFIG_PATH)
     os.makedirs(output, exist_ok=True)
     
     # ── Resolve URLs ────────────────────────────────────────────────
-    if url:
-        urls = [url]
-    else:
-        urls = config.get("job_urls", [])
+    urls = config.get("job_urls", [])
 
     if not urls:
-        print("❌ No URLs found in config or command line.")
+        print("❌ No URLs found in config.")
         return
 
     # ── Load Base Documents (Once) ──────────────────────────────────

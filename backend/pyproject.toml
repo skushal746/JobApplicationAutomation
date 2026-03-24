@@ -1,7 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "This application contains all the backend code for Job Application Automation"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -15,4 +15,5 @@ dependencies = [
     "sqlalchemy>=2.0.48",
     "uvicorn>=0.39.0",
     "websockets>=15.0.1",
+    "alembic>=1.13.1",
 ]

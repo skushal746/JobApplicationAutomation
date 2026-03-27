@@ -63,6 +63,9 @@ def run_migrations_online() -> None:
     if not url:
         # Fallback to config if env var not set
         url = config.get_main_option("sqlalchemy.url")
+    
+    if url and url.startswith("mysql://"):
+        url = "mysql+pymysql" + url[5:]
         
     configuration = config.get_section(config.config_ini_section, {})
     configuration["sqlalchemy.url"] = url

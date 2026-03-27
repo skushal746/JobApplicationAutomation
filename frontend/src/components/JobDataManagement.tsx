@@ -1,188 +1,252 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Plus, Edit2, Save, X } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Typography,
+  Box,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Chip,
+} from '@mui/material';
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
+import { 
+  useJobDataList, 
+  useCreateJobData, 
+  useUpdateJobData, 
+  useDeleteJobData 
+} from '../hooks/useJobDataQueries';
+import { JobData } from '../api/jobDataApi';
 
-const API_BASE = 'http://localhost:8000';
-
-interface JobData {
-  id: number;
-  job_portal_type: string;
-  job_url: string;
-}
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'success';
+    case 'applied': return 'info';
+    case 'not_active': return 'default';
+    default: return 'default';
+  }
+};
 
 export default function JobDataManagement() {
-  const [jobs, setJobs] = useState<JobData[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  // Queries & Mutations
+  const { data: jobs } = useJobDataList();
+  const createMutation = useCreateJobData();
+  const updateMutation = useUpdateJobData();
+  const deleteMutation = useDeleteJobData();
+
+  const [open, setOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<JobData | null>(null);
+  
+  // Form State
   const [jobPortalType, setJobPortalType] = useState('workday');
   const [jobUrl, setJobUrl] = useState('');
+  const [jobStatus, setJobStatus] = useState<'active' | 'applied' | 'not_active'>('active');
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const fetchJobs = async () => {
-    try {
-      const resp = await axios.get(`${API_BASE}/jobdata`);
-      setJobs(resp.data);
-    } catch (err) {
-      console.error('Failed to fetch jobs', err);
-    }
-  };
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_BASE}/jobdata`, { job_portal_type: jobPortalType, job_url: jobUrl });
+  const handleOpen = (job?: JobData) => {
+    if (job) {
+      setEditingJob(job);
+      setJobPortalType(job.job_portal_type);
+      setJobUrl(job.job_url);
+      setJobStatus(job.job_status);
+    } else {
+      setEditingJob(null);
       setJobPortalType('workday');
       setJobUrl('');
-      setIsAdding(false);
-      fetchJobs();
-    } catch (err) {
-      console.error('Failed to create job', err);
+      setJobStatus('active');
+    }
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEditingJob(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = { 
+      job_portal_type: jobPortalType, 
+      job_url: jobUrl,
+      job_status: jobStatus
+    };
+    
+    if (editingJob) {
+      updateMutation.mutate({ id: editingJob.id, data: payload }, {
+        onSuccess: handleClose
+      });
+    } else {
+      createMutation.mutate(payload, {
+        onSuccess: handleClose
+      });
     }
   };
 
-  const handleUpdate = async (id: number) => {
-    try {
-      await axios.put(`${API_BASE}/jobdata/${id}`, { job_portal_type: jobPortalType, job_url: jobUrl });
-      setEditingId(null);
-      fetchJobs();
-    } catch (err) {
-      console.error('Failed to update job', err);
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this job portal entry?')) {
+      deleteMutation.mutate(id);
     }
-  };
-
-  const startEditing = (job: JobData) => {
-    setEditingId(job.id);
-    setJobPortalType(job.job_portal_type);
-    setJobUrl(job.job_url);
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Job Portal Data</h2>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+    <Box className="p-6 max-w-6xl mx-auto">
+      <Box className="flex justify-between items-center mb-6">
+        <Typography variant="h4" component="h2" className="font-bold text-slate-800">
+          Job Data
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpen()}
+          className="bg-indigo-600 hover:bg-indigo-700 normal-case shadow-none"
         >
-          <Plus size={20} /> Add Job
-        </button>
-      </div>
+          Add Job
+        </Button>
+      </Box>
 
-      {isAdding && (
-        <form onSubmit={handleCreate} className="mb-8 p-4 bg-white rounded-xl shadow-sm border border-slate-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Job Portal Type</label>
-              <select
-                value={jobPortalType}
-                onChange={(e) => setJobPortalType(e.target.value)}
-                className="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
-              >
-                <option value="workday">Workday</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Job URL</label>
-              <input
-                type="url"
+      <TableContainer component={Paper} className="shadow-sm border border-slate-200 rounded-xl overflow-hidden">
+        <Table sx={{ minWidth: 650 }} aria-label="job data table">
+          <TableHead className="bg-slate-50">
+            <TableRow>
+              <TableCell className="font-semibold text-slate-900">Portal Type</TableCell>
+              <TableCell className="font-semibold text-slate-900">URL</TableCell>
+              <TableCell className="font-semibold text-slate-900">Status</TableCell>
+              <TableCell align="right" className="font-semibold text-slate-900">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody className="divide-y divide-slate-100">
+            {jobs.map((job) => (
+              <TableRow key={job.id} className="hover:bg-slate-50 transition">
+                <TableCell>
+                  <span className="capitalize px-2 py-1 bg-slate-100 rounded text-xs font-semibold text-slate-600">
+                    {job.job_portal_type}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <a 
+                    href={job.job_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-sm text-indigo-600 hover:underline truncate block max-w-sm"
+                  >
+                    {job.job_url}
+                  </a>
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={job.job_status.replace('_', ' ')} 
+                    size="small" 
+                    color={getStatusColor(job.job_status) as any} 
+                    variant="outlined"
+                    className="capitalize font-medium"
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Box className="flex justify-end gap-1">
+                    <IconButton size="small" onClick={() => handleOpen(job)} className="text-slate-400 hover:text-indigo-600">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleDelete(job.id)} className="text-slate-400 hover:text-red-500">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+            {jobs.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} align="center" className="py-12 text-slate-500 italic">
+                  No job data entries found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle className="font-bold">
+            {editingJob ? 'Edit Job Portal Entry' : 'Add New Job Portal Entry'}
+          </DialogTitle>
+          <DialogContent>
+            <Box className="flex flex-col gap-5 mt-2">
+              <FormControl fullWidth>
+                <InputLabel id="portal-type-label">Job Portal Type</InputLabel>
+                <Select
+                  labelId="portal-type-label"
+                  value={jobPortalType}
+                  label="Job Portal Type"
+                  onChange={(e) => setJobPortalType(e.target.value as string)}
+                >
+                  <MenuItem value="workday">Workday</MenuItem>
+                  <MenuItem value="linkedin">LinkedIn</MenuItem>
+                  <MenuItem value="indeed">Indeed</MenuItem>
+                  <MenuItem value="upwork">Upwork</MenuItem>
+                  <MenuItem value="wellfound">Wellfound</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
                 required
+                fullWidth
+                label="Job URL"
+                type="url"
                 value={jobUrl}
                 onChange={(e) => setJobUrl(e.target.value)}
                 placeholder="https://..."
-                className="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                variant="outlined"
               />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={() => setIsAdding(false)}
-              className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-            >
-              Save Job
-            </button>
-          </div>
-        </form>
-      )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th className="px-6 py-3 text-sm font-semibold text-slate-900">Portal Type</th>
-              <th className="px-6 py-3 text-sm font-semibold text-slate-900">URL</th>
-              <th className="px-6 py-3 text-sm font-semibold text-slate-900 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {jobs.map((job) => (
-              <tr key={job.id} className="hover:bg-slate-50 transition">
-                <td className="px-6 py-4">
-                  {editingId === job.id ? (
-                    <select
-                      value={jobPortalType}
-                      onChange={(e) => setJobPortalType(e.target.value)}
-                      className="rounded-lg border-slate-300 text-sm"
-                    >
-                      <option value="workday">Workday</option>
-                    </select>
-                  ) : (
-                    <span className="capitalize px-2 py-1 bg-slate-100 rounded text-xs font-semibold text-slate-600">
-                      {job.job_portal_type}
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  {editingId === job.id ? (
-                    <input
-                      type="url"
-                      value={jobUrl}
-                      onChange={(e) => setJobUrl(e.target.value)}
-                      className="w-full rounded-lg border-slate-300 text-sm"
-                    />
-                  ) : (
-                    <a href={job.job_url} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline truncate block max-w-xs">
-                      {job.job_url}
-                    </a>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  {editingId === job.id ? (
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => handleUpdate(job.id)} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
-                        <Save size={18} />
-                      </button>
-                      <button onClick={() => setEditingId(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
-                        <X size={18} />
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => startEditing(job)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
-                      <Edit2 size={18} />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {jobs.length === 0 && !isAdding && (
-              <tr>
-                <td colSpan={3} className="px-6 py-12 text-center text-slate-500 italic">
-                  No jobs added yet. Use the "Add Job" button above to get started.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+              <FormControl fullWidth>
+                <InputLabel id="job-status-label">Status</InputLabel>
+                <Select
+                  labelId="job-status-label"
+                  value={jobStatus}
+                  label="Status"
+                  onChange={(e) => setJobStatus(e.target.value as any)}
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="applied">Applied</MenuItem>
+                  <MenuItem value="not_active">Not Active</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </DialogContent>
+          <DialogActions className="p-4">
+            <Button onClick={handleClose} className="text-slate-500 lowercase">
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              className="bg-indigo-600 hover:bg-indigo-700 font-semibold"
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              {createMutation.isPending || updateMutation.isPending ? 'Saving...' : (editingJob ? 'Update Entry' : 'Add Entry')}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </Box>
   );
 }

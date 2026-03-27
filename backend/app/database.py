@@ -4,11 +4,11 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Default to MySQL for production/docker, fallback to SQLite for local development
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./hitl_pipeline.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://hitl_user:hitl_password@db:3306/hitl_db")
 
 # For MySQL, we use pymysql driver
-if DATABASE_URL.startswith("mysql"):
-    DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://")
+if DATABASE_URL.startswith("mysql://"):
+    DATABASE_URL = "mysql+pymysql" + DATABASE_URL[5:]
 
 engine = create_engine(
     DATABASE_URL, 

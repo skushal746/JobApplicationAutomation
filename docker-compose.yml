@@ -12,7 +12,7 @@ services:
     volumes:
       - ./docker_data/db:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,7 +22,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql://hitl_user:hitl_password@db:3306/hitl_db
+      - DATABASE_URL=mysql+pymysql://hitl_user:hitl_password@db:3306/hitl_db
       - OLLAMA_BASE=http://host.docker.internal:11434
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -33,11 +33,11 @@ services:
       - ./backend:/app
       - /app/.venv
     # Enable hot-reloading
-    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: [ "uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
     restart: always
 
   frontend:
-    build: 
+    build:
       context: ./frontend
       target: dev
     ports:

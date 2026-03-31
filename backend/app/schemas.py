@@ -14,3 +14,16 @@ class JobData(JobDataBase):
 
     class Config:
         from_attributes = True
+
+class FormResponseBase(BaseModel):
+    question_text: str
+    answer_text: str
+
+class FormResponseCreate(FormResponseBase):
+    pass
+
+class FormResponse(FormResponseBase):
+    id: int
+
+    class Config:
+        from_attributes = True

@@ -47,3 +47,23 @@ export const useDeleteJobData = () => {
     },
   });
 };
+
+export const useAutomateLinkedIn = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => jobDataApi.automateLinkedIn(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: jobDataKeys.lists() });
+    },
+  });
+};
+
+export const useAutomateAllLinkedIn = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => jobDataApi.automateAllLinkedIn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: jobDataKeys.lists() });
+    },
+  });
+};

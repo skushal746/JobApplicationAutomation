@@ -39,4 +39,10 @@ export const jobDataApi = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/jobdata/${id}`);
   },
+  automateLinkedIn: async (id: number): Promise<void> => {
+    await apiClient.post(`/jobdata/${id}/automate/linkedin`);
+  },
+  automateAllLinkedIn: async (): Promise<void> => {
+    await apiClient.post('/jobdata/automate/linkedin');
+  },
 };

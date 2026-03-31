@@ -22,3 +22,10 @@ class JobData(Base):
     job_portal_type = Column(Enum(JobPortalType), default=JobPortalType.other)
     job_url = Column(String(1024))
     job_status = Column(Enum(JobStatus), default=JobStatus.active)
+
+class FormResponse(Base):
+    __tablename__ = "form_responses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    question_text = Column(String(1024), index=True)
+    answer_text = Column(String(1024))

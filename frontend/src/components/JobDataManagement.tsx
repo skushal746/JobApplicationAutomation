@@ -26,12 +26,16 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  PlayArrow as PlayIcon,
+  AutoMode as AutoModeIcon,
 } from '@mui/icons-material';
-import { 
-  useJobDataList, 
-  useCreateJobData, 
-  useUpdateJobData, 
-  useDeleteJobData 
+import {
+  useJobDataList,
+  useCreateJobData,
+  useUpdateJobData,
+  useDeleteJobData,
+  useAutomateLinkedIn,
+  useAutomateAllLinkedIn
 } from '../hooks/useJobDataQueries';
 import { JobData } from '../api/jobDataApi';
 
@@ -50,10 +54,12 @@ export default function JobDataManagement() {
   const createMutation = useCreateJobData();
   const updateMutation = useUpdateJobData();
   const deleteMutation = useDeleteJobData();
+  const automateMutation = useAutomateLinkedIn();
+  const automateAllMutation = useAutomateAllLinkedIn();
 
   const [open, setOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobData | null>(null);
-  
+
   // Form State
   const [jobPortalType, setJobPortalType] = useState('workday');
   const [jobUrl, setJobUrl] = useState('');
@@ -81,12 +87,12 @@ export default function JobDataManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { 
-      job_portal_type: jobPortalType, 
+    const payload = {
+      job_portal_type: jobPortalType,
       job_url: jobUrl,
       job_status: jobStatus
     };
-    
+
     if (editingJob) {
       updateMutation.mutate({ id: editingJob.id, data: payload }, {
         onSuccess: handleClose
@@ -104,21 +110,43 @@ export default function JobDataManagement() {
     }
   };
 
+  const handleAutomate = (id: number) => {
+    automateMutation.mutate(id);
+  };
+
+  const handleAutomateAll = () => {
+    if (window.confirm('Start automation for all active LinkedIn jobs?')) {
+      automateAllMutation.mutate();
+    }
+  };
+
   return (
     <Box className="p-6 max-w-6xl mx-auto">
       <Box className="flex justify-between items-center mb-6">
         <Typography variant="h4" component="h2" className="font-bold text-slate-800">
           Job Data
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpen()}
-          className="bg-indigo-600 hover:bg-indigo-700 normal-case shadow-none"
-        >
-          Add Job
-        </Button>
+        <Box className="flex gap-2">
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<AutoModeIcon />}
+            onClick={handleAutomateAll}
+            disabled={automateAllMutation.isPending}
+            className="normal-case border-slate-300 text-slate-600 hover:bg-slate-50"
+          >
+            {automateAllMutation.isPending ? 'Starting...' : 'Automate LinkedIn'}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpen()}
+            className="bg-indigo-600 hover:bg-indigo-700 normal-case shadow-none"
+          >
+            Add Job
+          </Button>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} className="shadow-sm border border-slate-200 rounded-xl overflow-hidden">
@@ -140,26 +168,37 @@ export default function JobDataManagement() {
                   </span>
                 </TableCell>
                 <TableCell>
-                  <a 
-                    href={job.job_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={job.job_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-indigo-600 hover:underline truncate block max-w-sm"
                   >
                     {job.job_url}
                   </a>
                 </TableCell>
                 <TableCell>
-                  <Chip 
-                    label={job.job_status.replace('_', ' ')} 
-                    size="small" 
-                    color={getStatusColor(job.job_status) as any} 
+                  <Chip
+                    label={job.job_status.replace('_', ' ')}
+                    size="small"
+                    color={getStatusColor(job.job_status) as any}
                     variant="outlined"
                     className="capitalize font-medium"
                   />
                 </TableCell>
                 <TableCell align="right">
                   <Box className="flex justify-end gap-1">
+                    {job.job_portal_type === 'linkedin' && job.job_status === 'active' && (
+                      <IconButton
+                        size="small"
+                        onClick={() => handleAutomate(job.id)}
+                        disabled={automateMutation.isPending}
+                        className="text-emerald-500 hover:text-emerald-600"
+                        title="Start Automation"
+                      >
+                        <PlayIcon fontSize="small" />
+                      </IconButton>
+                    )}
                     <IconButton size="small" onClick={() => handleOpen(job)} className="text-slate-400 hover:text-indigo-600">
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -236,9 +275,9 @@ export default function JobDataManagement() {
             <Button onClick={handleClose} className="text-slate-500 lowercase">
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               className="bg-indigo-600 hover:bg-indigo-700 font-semibold"
               disabled={createMutation.isPending || updateMutation.isPending}
             >

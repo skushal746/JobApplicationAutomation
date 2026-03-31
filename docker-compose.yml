@@ -54,3 +54,13 @@ services:
     restart: always
     ports:
       - "8080:8080"
+
+  browser:
+    image: ghcr.io/browserless/chromium:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - CONCURRENT=10
+      - TOKEN=secret_token
+    # browserless is optimized for headless execution

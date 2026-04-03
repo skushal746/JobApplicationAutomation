@@ -3,6 +3,7 @@ import os
 import httpx
 from playwright.async_api import async_playwright
 from .repository import Repository
+from .utils.config_loader import get_user_context_string
 from .schemas import FormResponseCreate, JobDataCreate
 from .models import JobStatus, JobPortalType
 
@@ -105,10 +106,16 @@ class LinkedInAutomation:
 
     async def _get_llm_answer(self, question):
         """Calls the local Ollama LLM to generate an answer for a specific question."""
+        user_context = get_user_context_string()
         prompt = f"""
         You are an AI assistant helping a job applicant.
-        Answer the following LinkedIn application question based on general professional standards.
-        Keep the answer concise and relevant.
+        Below is the applicant's profile for context:
+        {user_context}
+
+        Answer the following job application question based on the applicant's background. 
+        If the question is about personal details (phone, email, name), use the provided context.
+        Keep the answer concise and professional.
+
         Question: {question}
         Answer:
         """

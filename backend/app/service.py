@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import Depends
 from .repository import Repository, get_repository
 from .automation_service import LinkedInAutomation
@@ -18,6 +19,9 @@ class Service:
         if not db_job_data:
             return None
         return self.repository.update_job_data(db_job_data, job_data)
+
+    def get_job_stats(self):
+        return self.repository.get_job_stats()
 
     async def automate_linkedin(self, job_id: int):
         return await self.automation.automate_job(job_id)

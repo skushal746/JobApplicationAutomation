@@ -2,10 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from .database import get_db
-from .schemas import JobData as JobDataSchema, JobDataCreate
+from .schemas import JobData as JobDataSchema, JobDataCreate, JobStats
 from .service import Service, get_service
 
 router = APIRouter()
+
+@router.get("/jobdata/stats", response_model=JobStats)
+def get_job_stats(service: Service = Depends(get_service)):
+    return service.get_job_stats()
 
 @router.get("/jobdata", response_model=List[JobDataSchema])
 def get_job_data(service: Service = Depends(get_service)):

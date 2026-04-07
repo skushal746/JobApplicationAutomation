@@ -1,111 +1,41 @@
 import asyncio
 import os
 import httpx
-from playwright.async_api import async_playwright
+from abc import ABC, abstractmethod
+from playwright.async_api import async_playwright, Page
 from .repository import Repository
 from .utils.config_loader import get_user_context_string
-from .schemas import FormResponseCreate, JobDataCreate
-from .models import JobStatus, JobPortalType
+from .models import JobStatus, JobPortalType, JobApplication, Company
+from .schemas import QuestionAnswerCreate
 
-class LinkedInAutomation:
-    def __init__(self, repository: Repository):
+class BaseAutomation(ABC):
+    def __init__(self, repository: Repository, browser_url: str, ollama_base: str):
         self.repository = repository
-        self.browser_url = os.getenv("BROWSER_WS", "ws://browser:3000?token=secret_token")
-        self.ollama_base = os.getenv("OLLAMA_BASE", "http://localhost:11434")
+        self.browser_url = browser_url
+        self.ollama_base = ollama_base
 
-    async def automate_job(self, job_id: int):
-        job = self.repository.get_job_data_by_id(job_id)
-        if not job or job.job_portal_type != JobPortalType.linkedin:
-            return False
+    @abstractmethod
+    async def run(self, job_app: JobApplication):
+        pass
 
-        async with async_playwright() as p:
-            try:
-                # Connect to the remote browserless service
-                browser = await p.chromium.connect_over_cdp(self.browser_url)
-                context = await browser.new_context()
-                page = await context.new_page()
+    async def _get_answer(self, company_id: int, question_text: str) -> str:
+        # 1. Check Company-specific Q&A
+        qa = self.repository.get_qa_by_company_and_question(company_id, question_text)
+        if qa:
+            return qa.answer_text
+        
+        # 2. Fallback to LLM
+        answer = await self._get_llm_answer(question_text)
+        
+        # 3. Save for future use
+        self.repository.create_qa(QuestionAnswerCreate(
+            company_id=company_id,
+            question_text=question_text,
+            answer_text=answer
+        ))
+        return answer
 
-                # Navigate to the job URL
-                await page.goto(job.job_url, wait_until="networkidle")
-
-                # Look for "Easy Apply" button
-                easy_apply_button = page.locator("button:has-text('Easy Apply')").first
-                if await easy_apply_button.count() == 0:
-                    print(f"Easy Apply not found for job {job_id}")
-                    return False
-
-                await easy_apply_button.click()
-                await asyncio.sleep(2)
-
-                # Modal Loop: Keep clicking "Next" or "Review" until "Submit"
-                max_steps = 10
-                for _ in range(max_steps):
-                    # Check for questions in the current step
-                    await self._handle_form_questions(page)
-
-                    # Click Next/Review/Submit
-                    next_button = page.locator("button:has-text('Next'), button:has-text('Review'), button:has-text('Submit application')").first
-                    if await next_button.count() == 0:
-                        break
-                    
-                    button_text = await next_button.inner_text()
-                    await next_button.click()
-                    await asyncio.sleep(1)
-
-                    if "Submit application" in button_text:
-                        # Update status to applied
-                        self.repository.update_job_data(job, JobDataCreate(
-                            job_portal_type=job.job_portal_type,
-                            job_url=job.job_url,
-                            job_status=JobStatus.applied
-                        ))
-                        break
-
-                await browser.close()
-                return True
-
-            except Exception as e:
-                print(f"Error automating job {job_id}: {e}")
-                return False
-
-    async def _handle_form_questions(self, page):
-        """Detects questions in the current modal and fills them using DB or LLM."""
-        # Find all labels or fieldsets that look like questions
-        questions = page.locator(".jobs-easy-apply-form-section__grouping")
-        count = await questions.count()
-
-        for i in range(count):
-            section = questions.nth(i)
-            label = section.locator("label").first
-            if await label.count() == 0:
-                continue
-
-            question_text = (await label.inner_text()).strip()
-            
-            # 1. Check DB first
-            db_response = self.repository.get_form_response_by_question(question_text)
-            if db_response:
-                answer = db_response.answer_text
-            else:
-                # 2. Call Ollama LLM
-                answer = await self._get_llm_answer(question_text)
-                # 3. Store in DB
-                self.repository.create_form_response(FormResponseCreate(
-                    question_text=question_text,
-                    answer_text=answer
-                ))
-
-            # Fill the input (handle text, choice, etc.)
-            input_field = section.locator("input[type='text'], textarea, select").first
-            if await input_field.count() > 0:
-                tag_name = await input_field.evaluate("el => el.tagName")
-                if tag_name == "SELECT":
-                    await input_field.select_option(label=answer)
-                else:
-                    await input_field.fill(answer)
-
-    async def _get_llm_answer(self, question):
-        """Calls the local Ollama LLM to generate an answer for a specific question."""
+    async def _get_llm_answer(self, question: str):
         user_context = get_user_context_string()
         prompt = f"""
         You are an AI assistant helping a job applicant.
@@ -113,7 +43,6 @@ class LinkedInAutomation:
         {user_context}
 
         Answer the following job application question based on the applicant's background. 
-        If the question is about personal details (phone, email, name), use the provided context.
         Keep the answer concise and professional.
 
         Question: {question}
@@ -124,7 +53,7 @@ class LinkedInAutomation:
                 response = await client.post(
                     f"{self.ollama_base}/api/generate",
                     json={
-                        "model": "llama3", # or whichever model is set up
+                        "model": "llama3",
                         "prompt": prompt,
                         "stream": False
                     },
@@ -134,5 +63,154 @@ class LinkedInAutomation:
                     return response.json().get("response", "Yes").strip()
         except Exception as e:
             print(f"LLM Error: {e}")
-            return "Yes" # Default fallback
+            return "Yes"
         return "Yes"
+
+class LinkedInStrategy(BaseAutomation):
+    async def run(self, job_app: JobApplication):
+        async with async_playwright() as p:
+            try:
+                browser = await p.chromium.connect_over_cdp(self.browser_url)
+                context = await browser.new_context()
+                page = await context.new_page()
+                # job_url removed from model. Replace with derived URL if needed.
+                # await page.goto(job_app.job_url, wait_until="networkidle") 
+
+                easy_apply_button = page.locator("button:has-text('Easy Apply')").first
+                if await easy_apply_button.count() == 0:
+                    return False
+
+                await easy_apply_button.click()
+                await asyncio.sleep(2)
+
+                for _ in range(10):
+                    await self._handle_form(page, job_app.company_id)
+                    next_button = page.locator("button:has-text('Next'), button:has-text('Review'), button:has-text('Submit application')").first
+                    if await next_button.count() == 0: break
+                    
+                    text = await next_button.inner_text()
+                    await next_button.click()
+                    await asyncio.sleep(1)
+                    if "Submit application" in text:
+                        self.repository.update_application_status(job_app, JobStatus.applied)
+                        break
+
+                await browser.close()
+                return True
+            except Exception as e:
+                print(f"LinkedIn Error: {e}")
+                return False
+
+    async def _handle_form(self, page: Page, company_id: int):
+        questions = page.locator(".jobs-easy-apply-form-section__grouping")
+        for i in range(await questions.count()):
+            section = questions.nth(i)
+            label = section.locator("label").first
+            if await label.count() == 0: continue
+            q_text = (await label.inner_text()).strip()
+            answer = await self._get_answer(company_id, q_text)
+            
+            input_field = section.locator("input[type='text'], textarea, select").first
+            if await input_field.count() > 0:
+                if await input_field.evaluate("el => el.tagName") == "SELECT":
+                    await input_field.select_option(label=answer)
+                else:
+                    await input_field.fill(answer)
+
+class WorkdayStrategy(BaseAutomation):
+    async def run(self, job_app: JobApplication):
+        company = job_app.company
+        async with async_playwright() as p:
+            try:
+                browser = await p.chromium.connect_over_cdp(self.browser_url)
+                context = await browser.new_context()
+                page = await context.new_page()
+                # job_url removed from model. Replace with derived URL if needed.
+                # await page.goto(job_app.job_url, wait_until="networkidle")
+
+                # 1. Start Application - Apply Manually
+                apply_button = page.locator("button:has-text('Apply')").first
+                await apply_button.click()
+                await page.locator("button:has-text('Apply Manually')").click()
+                await asyncio.sleep(2)
+
+                # 2. Login if needed
+                if "login" in page.url.lower():
+                    await page.fill("input[type='email'], input[name='username']", company.username)
+                    await page.fill("input[type='password']", company.password)
+                    await page.click("button[type='submit'], button:has-text('Sign In')")
+                    await asyncio.sleep(3)
+
+                # 3. Form Loop
+                max_steps = 8
+                for _ in range(max_steps):
+                    await self._fill_workday_section(page, company.id)
+                    
+                    # Upload Logic (Mock)
+                    if "resume" in page.url.lower() or await page.locator("input[type='file']").count() > 0:
+                        file_input = page.locator("input[type='file']").first
+                        if await file_input.count() > 0 and job_app.resumes:
+                            await file_input.set_input_files(job_app.resumes[0].location)
+
+                    next_btn = page.locator("button:has-text('Save and Continue'), button:has-text('Submit')").first
+                    if await next_btn.count() == 0: break
+                    
+                    btn_text = await next_btn.inner_text()
+                    await next_btn.click()
+                    await asyncio.sleep(2)
+                    
+                    if "Submit" in btn_text:
+                        self.repository.update_application_status(job_app, JobStatus.applied)
+                        break
+
+                await browser.close()
+                return True
+            except Exception as e:
+                print(f"Workday Error: {e}")
+                return False
+
+    async def _fill_workday_section(self, page: Page, company_id: int):
+        fields = page.locator("div.css-1") # Simplified selector for WD fields
+        # In practice, Workday uses complex structures. 
+        # For this design, we iterate over labels and their associated inputs.
+        labels = page.locator("label")
+        for i in range(await labels.count()):
+            label = labels.nth(i)
+            q_text = (await label.inner_text()).strip()
+            if not q_text: continue
+            
+            answer = await self._get_answer(company_id, q_text)
+            
+            # Find associated input by id or aria-labelledby
+            input_id = await label.get_attribute("for")
+            if input_id:
+                input_field = page.locator(f"#{input_id.replace('.', '\\.')}")
+                if await input_field.count() > 0:
+                    tag = await input_field.evaluate("el => el.tagName")
+                    if tag == "SELECT":
+                        await input_field.select_option(label=answer)
+                    else:
+                        await input_field.fill(answer)
+
+class AutomationService:
+    def __init__(self, repository: Repository):
+        self.repository = repository
+        self.browser_url = os.getenv("BROWSER_WS", "ws://browser:3000?token=secret_token")
+        self.ollama_base = os.getenv("OLLAMA_BASE", "http://localhost:11434")
+        self.strategies = {
+            JobPortalType.linkedin: LinkedInStrategy(repository, self.browser_url, self.ollama_base),
+            JobPortalType.workday: WorkdayStrategy(repository, self.browser_url, self.ollama_base)
+        }
+
+    async def run_automation(self, job_app_id: int):
+        job_app = self.repository.get_application_by_id(job_app_id)
+        if not job_app: return False
+        
+        portal_type = job_app.company.portal_type
+        strategy = self.strategies.get(portal_type)
+        
+        if not strategy:
+            print(f"No strategy found for {portal_type}")
+            return False
+            
+        return await strategy.run(job_app)

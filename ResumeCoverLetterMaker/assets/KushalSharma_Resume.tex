@@ -1,0 +1,125 @@
+\documentclass[10pt,letterpaper]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=0.5in]{geometry} % Tight margins to fit content
+\usepackage{enumitem} % For custom bullet points
+\usepackage[hidelinks]{hyperref} % For clickable links without ugly boxes
+\usepackage{titlesec} % For custom section headers
+
+% --- CUSTOM FORMATTING ---
+% Format the section headings (All Caps, Bold, with a horizontal rule below)
+\titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{8pt}{4pt}
+
+% Remove page numbers
+\pagestyle{empty}
+
+% Reduce spacing between paragraphs
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+% --- HEADER ---
+\begin{center}
+    {\Huge \textbf{Kushal Sharma}} \\
+    \vspace{4pt}
+    skushal746@gmail.com | \href{https://www.linkedin.com/in/skushal746}{www.linkedin.com/in/skushal746} | \href{https://github.com/skushal746}{https://github.com/skushal746} | 8767716841
+\end{center}
+
+% --- EDUCATION ---
+\section{Education}
+\textbf{University of Florida} \hfill May 2023 \\
+Master of Science, Computer Science \\
+\textbf{University of Mumbai} \hfill May 2017 \\
+Bachelor of Engineering, in Computer Engineering \\
+\textit{Relevant Coursework} - Distributed Systems, Cloud Computing, Software Engineering, Data Structures \& Algorithms, Human-Computer Interaction
+
+% --- WORK EXPERIENCE ---
+\section{Work Experience}
+
+\textbf{Remora} | \textit{Back End Developer} | United States \hfill July 2023 - Dec 2025
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Designed and integrated ML/NLP-powered search and recommendation pipelines into Java-based backend services, improving query relevance and user engagement by 25\%.
+    \item Architected and deployed scalable RESTful APIs and distributed systems using Java 17/21, Spring Boot, Weblogic, Hibernate, MySQL, and AWS Cloud infrastructure to power dynamic React SPA improving system performance and reliability by 30\%.
+    \item Built scalable microservices architecture with Spring Cloud and asynchronous programming patterns (JMS) to optimize cross device synchronization, data consistency and state synchronization for React UI.
+    \item Developed asynchronous backend schedulers leveraging Spring Batch distributed architecture principles, ensuring 99.9\% uptime for enterprise clients.
+    \item Collaborated cross-functionally with front-end, data science, and product teams to integrate ML-powered features and AI-driven workflows into production systems using Spring AI and micro service orchestration using Kubernetes (K8s).
+    \item Mentored junior developers on best practices focusing on Spring Security, Test-Driven Development (JUnit/Mockito) for code quality.
+\end{itemize}
+
+\vspace{4pt}
+\textbf{Sonos} | \textit{SDE Intern} | United States \hfill June 2022 - August 2022
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Designed and implemented real-time distributed tracking systems using Spring Boot, Spring JPA, and ReactJS, improving event visibility by 90\%.
+    \item Leveraged asynchronous programming and schedulers to optimize cross-device synchronization. Achieved 90\% code coverage using TDD (JUnit, Mockito), strengthening system reliability.
+\end{itemize}
+
+\vspace{4pt}
+\textbf{Itiviti} | \textit{Full Stack Engineer} | India \hfill October 2020 - July 2021
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Architected high-throughput microservices using Java 8/11 and Spring Boot, implementing custom serialization and efficient memory management to improve data throughput by 20\%.
+    \item Developed enterprise-grade RESTful APIs with Spring WebFlux for non-blocking I/O, facilitating real-time financial data streaming for high-frequency trading clients.
+    \item Optimized persistence layers by designing complex MongoDB aggregation pipelines and implementing LRU caching in Java, reducing log-scheduler query latency by 7\%.
+    \item Maintained 95\%+ unit test coverage using JUnit and Mockito, ensuring the stability of critical financial transaction modules.
+\end{itemize}
+
+\vspace{4pt}
+\textbf{QualityKiosk Technologies Private Limited} | \textit{Software Developer} | India \hfill July 2019 - February 2020
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Engineered scalable Spring Boot microservices integrated with ElasticSearch for sub-second search performance to query across 1.5 Terabytes of analytical data.
+    \item Implemented robust security protocols using Spring Security (OAuth2/JWT) to protect analytical dashboards and sensitive client data.
+    \item Automated CI/CD backend workflows using Maven and Jenkins, streamlining the Java build process and reducing manual deployment overhead by 15\%.
+    \item Built reactive analytical dashboards in AngularJS, bridging the gap between high-performance Java backends and intuitive user interfaces for operational reporting.
+\end{itemize}
+
+\vspace{4pt}
+\textbf{Verdantis Tech Private Limited} | \textit{Software Developer} | India \hfill July 2017 - June 2019
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Refactored legacy Java modules into a multithreaded Spring architecture, leveraging ExecutorService and Completable Future to boost SFTP and web service throughput by 300\% using JBoss Server.
+    \item Developed a custom Java-based metadata engine to automate database schema retrieval and validation, eliminating manual entry errors for enterprise Master Data Management (MDM).
+    \item Enhanced JVM performance and localization by optimizing character encoding (UTF-8) across the authentication stack, ensuring seamless SSO compatibility for global enterprise users.
+    \item Utilized Hibernate (ORM) for efficient data mapping and transaction management across diverse RDBMS environments including MySQL and PostgreSQL.
+\end{itemize}
+
+% --- PROJECTS ---
+\section{Projects}
+
+\textbf{Enterprise RAG \& LLM Fine-Tuning Engine} | \textit{Python, PyTorch, Java, Spring Boot}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Architected a scalable enterprise AI platform combining custom PyTorch LLM fine-tuning and RAG pipelines deployed via high-throughput Spring Boot microservices.
+\end{itemize}
+
+\textbf{Twitter Clone} | \textit{F\# / REST APIs}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Built a distributed social system using the Actor Model and REST APIs; verified fault tolerance through integration tests.
+\end{itemize}
+
+\textbf{Compiler} | \textit{Java, JUnit}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Developed a lexer, compiler, Abstract Syntax Tree, Type Check Visitor, and Bytecode Generator using Java and test cases using JUnit.
+\end{itemize}
+
+\textbf{Inventory Management} | \textit{Java, Microservices, REST, LRU Caching}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Developed a fault-tolerant inventory system using microservices and node replication to improve latency and handle node failures.
+\end{itemize}
+
+\textbf{P2P Distributed Architecture} | \textit{Java, AWS EC2}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Deployed a multithreaded peer-to-peer system using RMI and AWS EC2 for high concurrency and reliable distributed processing.
+\end{itemize}
+
+% --- SKILLS ---
+\section{Skills}
+\begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item \textbf{Languages:} Java, Python, PHP, JavaScript, TypeScript, SQL
+    \item \textbf{AI \& Machine Learning:} RAG (Retrieval-Augmented Generation), LLM Fine-Tuning, Parallel Training Pipelines, PyTorch, CUDA.
+    \item \textbf{Frameworks:} Spring Boot, Spring JPA, Hibernate, Laravel, React, Node.js, Angular, Spring AI
+    \item \textbf{Databases:} MySQL, PostgreSQL, MongoDB, Cassandra
+    \item \textbf{Cloud \& DevOps:} AWS (S3, SQS, Lambda), Docker, Kubernetes, Jenkins, Git, Nginx
+    \item \textbf{Tools \& Testing:} JUnit, Mockito, Maven, Gradle, Redis, Elasticsearch
+    \item \textbf{Concepts:} Distributed Systems, Microservices, RESTful API Design, System Design, CI/CD, Agile
+\end{itemize}
+
+\end{document}

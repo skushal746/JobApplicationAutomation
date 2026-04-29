@@ -1,309 +1,250 @@
 """
 document_generator.py
 
-Generates tailored resume and cover letter as Markdown strings.
+Generates tailored resume, cover letter, and freelance proposal as LaTeX strings.
 """
 
-from utils.github import get_github_repos, format_repos_for_llm
-from projects_config import PROJECTS_BY_ROLE, DEFAULT_PROJECTS
+import os
 from utils.ai import _call_ollama, _call_gemini
 
+
+# ── Project Selection prompt ───────────────────────────────────────────────────
+_PROJECT_SELECTION_SYSTEM = (
+    "You are a technical recruiter evaluating candidate projects. "
+    "You output only the raw Markdown of the selected projects — no commentary, no fences."
+)
+
+_PROJECT_SELECTION_PROMPT = """From the provided MY GITHUB PROJECTS list, select the 3-4 most relevant projects for the following job description and keywords.
+Return ONLY the raw markdown of the selected projects exactly as they appear in the list.
+
+KEYWORDS:
+Required Skills: {required_skills}
+Soft Skills: {soft_skills}
+
+JOB DESCRIPTION:
+{job_text}
+
+MY GITHUB PROJECTS:
+{github_projects_text}"""
 
 
 # ── Resume prompt ──────────────────────────────────────────────────────────────
 _RESUME_SYSTEM = (
     "You are an expert resume writer and ATS optimization specialist. "
-    "You output only clean Markdown — no commentary, no preamble, no fences."
+    "You output only valid LaTeX code — no commentary, no markdown code block fences (like ```latex or ```)."
 )
 
-_RESUME_PROMPT = """Rewrite the resume below so these keywords are NATURALLY integrated into the WORK EXPERIENCE bullet points.
+_RESUME_PROMPT = """Rewrite the provided LaTeX resume so these keywords are NATURALLY integrated into the WORK EXPERIENCE bullet points.
 Do NOT fabricate experience. Preserve all facts (companies, dates, degrees, roles).
 Fix any verb tense inconsistencies — use past tense for all bullet points.
-Reduce bolding — only bold company names and job titles, not every keyword.
-Keep the structure exactly as provided in the ORIGINAL RESUME, but update the content of the bullets.
+Keep the exact LaTeX structure, layout, and formatting as provided in the ORIGINAL RESUME.
 
-Output clean Markdown with these sections in order:
-# {name}
-{email} | {phone} | {linkedin} | {github}
-
----
-
-## PROFESSIONAL SUMMARY
-(2-3 sentences incorporating soft skills if applicable)
-
----
-
-## TECHNICAL SKILLS
-(bullet list of technical skills, including relevant ones from the keywords)
-
----
-
-## WORK EXPERIENCE
-
-### Role | Company | Location
-#### Start – End
-- bullet
-- bullet
-
-(repeat for each role)
-
----
-
-## PROJECTS
-(list projects with bullet points)
-
----
-
-## EDUCATION
-(one line per degree)
-
----
+For the PROJECTS section, replace the existing projects with the ones provided in RELEVANT PROJECTS. 
+Format these new projects identically to how projects are formatted in the ORIGINAL RESUME (with bold titles, tech stacks, and bulleted descriptions). Escape any special LaTeX characters (like % as \\%).
 
 KEYWORDS TO INCORPORATE:
 Technical: {required_skills}
 Soft: {soft_skills}
 
-ORIGINAL RESUME:
+RELEVANT PROJECTS:
+{relevant_projects_text}
+
+ORIGINAL RESUME (LaTeX):
 {resume_text}"""
 
 
 # ── Cover Letter prompt ────────────────────────────────────────────────────────
 _COVER_LETTER_SYSTEM = (
     "You are a professional cover letter writer. "
-    "You output only clean Markdown — no commentary, no preamble, no fences."
+    "You output only valid LaTeX code — no commentary, no markdown code block fences (like ```latex or ```)."
 )
 
-_COVER_LETTER_PROMPT = """Write a cover letter for:
+_COVER_LETTER_PROMPT = """Write a tailored cover letter in LaTeX format for:
 - Applicant: {name}
 - Role: {job_title} at {company_name}
 
 Rules:
-1. Exactly 4 body paragraphs — no bullet lists in the body
+1. Exactly 4 body paragraphs — no bullet lists in the body.
 2. Integrate these keywords naturally (do NOT just list them): {required_skills}
-3. Sound human and specific — avoid clichés like "I am uniquely positioned", "I thrive in environments", "passionate"
-4. Minimal bolding — only the applicant name in the header
-5. MENTION AT LEAST ONE RELEVANT PROJECT FROM THE LIST BELOW. Include its GitHub link (if provided) and highlight how it relates to the role's requirements.
-6. Use the list of all GitHub repositories provided to find other relevant projects if the specific projects list doesn't have a perfect match.
-7. Output clean Markdown in this structure:
+3. Sound human and specific — avoid clichés like "I am uniquely positioned", "I thrive in environments", "passionate".
+4. MENTION AT LEAST ONE RELEVANT PROJECT FROM THE RELEVANT PROJECTS LIST. Include its GitHub link.
+5. Use the provided BASE COVER LETTER (LaTeX) as a template. Maintain all its LaTeX formatting and commands (like \\documentclass, \\begin{{document}}, \\end{{document}}, etc.), but REPLACE the body text with your tailored content. Ensure you escape any special LaTeX characters (like % as \\%).
 
-# {name}
-{email} | {phone} | {linkedin} | {github_url}
-
----
-
-Dear Hiring Manager,
-
-[paragraph 1 — who you are, your strongest credential, why this role specifically]
-
-[paragraph 2 — most relevant accomplishment with a specific metric from experience. If you mention a project, include its GitHub link.]
-
-[paragraph 3 — continuation of most relevant accomplishment or another key project. Focus on technical depth.]
-
-[paragraph 4 — why this company specifically, forward-looking, call to action]
-
-Sincerely,
-**{name}**
-
-RELEVANT PROJECTS FOR THIS ROLE:
-{relevant_projects}
-
-ALL GITHUB REPOSITORIES:
-{github_repos_list}
+RELEVANT PROJECTS:
+{relevant_projects_text}
 
 JOB DESCRIPTION CONTEXT:
 {job_text}
 
-APPLICANT'S BASE COVER LETTER (use for tone and factual reference only):
+BASE COVER LETTER (LaTeX):
 {cover_letter_text}"""
 
 
+# ── Freelance Proposal prompt ──────────────────────────────────────────────────
+_FREELANCE_PROPOSAL_SYSTEM = (
+    "You are an expert freelance proposal writer. "
+    "You output only valid LaTeX code — no commentary, no markdown code block fences (like ```latex or ```)."
+)
 
-# ── Freelance Cover Letter prompt (for inline job_descriptions) ────────────────
-_FREELANCE_COVER_LETTER_PROMPT = """Write a freelance proposal / cover letter for:
+_FREELANCE_PROPOSAL_PROMPT = """Write a tailored freelance proposal in LaTeX format for:
 - Applicant: {name}
 
 Rules:
-1. Exactly 4 body paragraphs — no bullet lists in the body
+1. Exactly 4 body paragraphs — no bullet lists in the body.
 2. Integrate these keywords naturally (do NOT just list them): {required_skills}
-3. Sound human and specific — avoid clichés like "I am uniquely positioned", "I thrive in environments", "passionate"
-4. Minimal bolding — only the applicant name in the header
-5. Paragraph 4 must focus on WHY the applicant is a strong fit for THIS specific project —
-   concrete matching skills, relevant past work, and a clear call to action.
-6. MENTION AT LEAST ONE RELEVANT PROJECT FROM THE LIST BELOW. Include its GitHub link (if provided).
-7. Use the list of all GitHub repositories provided to find other relevant projects if needed.
-8. Do NOT mention company culture, company values, or why the company is exciting.
-9. Output clean Markdown in this structure:
+3. Sound human and specific — avoid clichés.
+4. Paragraph 4 must focus on WHY the applicant is a strong fit for THIS specific project — concrete matching skills, relevant past work, and a clear call to action.
+5. MENTION AT LEAST ONE RELEVANT PROJECT FROM THE RELEVANT PROJECTS LIST. Include its GitHub link.
+6. Do NOT mention company culture, company values, or why the company is exciting.
+7. Use the provided BASE FREELANCE PROPOSAL (LaTeX) as a template. Maintain all its LaTeX formatting and commands (like \\documentclass, \\begin{{document}}, \\end{{document}}, etc.), but REPLACE the body text with your tailored content. Ensure you escape any special LaTeX characters (like % as \\%).
 
-# {name}
-{email} | {phone} | {linkedin} | {github_url}
+RELEVANT PROJECTS:
+{relevant_projects_text}
 
----
-
-Hello,
-
-[paragraph 1 — who you are, your strongest credential for this type of project]
-
-[paragraph 2 — most relevant accomplishment or project with a specific metric matching the project needs. Link to the code if possible.]
-
-[paragraph 3 — continuation: another relevant accomplishment or technical depth that addresses the project.]
-
-[paragraph 4 — why you specifically are the right fit for THIS project: concrete skill match, relevant experience,
-and a clear call to action inviting the client to discuss further]
-
-Best regards,
-**{name}**
-
-RELEVANT PROJECTS FOR THIS ROLE:
-{relevant_projects}
-
-ALL GITHUB REPOSITORIES:
-{github_repos_list}
-
-JOB DESCRIPTION:
+PROJECT DESCRIPTION:
 {job_text}
 
-APPLICANT'S BASE COVER LETTER (use for tone and factual reference only):
-{cover_letter_text}"""
+BASE FREELANCE PROPOSAL (LaTeX):
+{proposal_text}"""
 
 
+def _get_github_projects_text() -> str:
+    """Read the my_github_projects.md file."""
+    path = os.path.join(os.path.dirname(__file__), "my_github_projects.md")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"Warning: Could not read {path}: {e}")
+        return ""
 
-def _deduplicate(text: str, end_marker: str) -> str:
+def _clean_latex_output(text: str) -> str:
+    """Remove markdown code block backticks if the LLM includes them."""
+    text = text.strip()
+    if text.startswith("```latex"):
+        text = text[8:]
+    elif text.startswith("```"):
+        text = text[3:]
+    
+    if text.endswith("```"):
+        text = text[:-3]
+    return text.strip()
+
+
+def select_relevant_projects(keywords: dict, job_text: str, config: dict) -> str:
     """
-    Local LLMs sometimes repeat their output multiple times.
-    Find the first natural end of the document (end_marker) and
-    strip everything after it, keeping only the first copy.
-
-    Args:
-        text:       Raw model output.
-        end_marker: String that marks the end of one complete document
-                    (e.g. 'Sincerely,' for cover letters, '## EDUCATION' for resumes).
-    Returns:
-        Trimmed string containing only the first complete document.
+    Query the LLM to select the most relevant projects based on keywords and job description.
     """
-    idx = text.find(end_marker)
-    if idx == -1:
-        return text.strip()  # marker not found — return as-is
-
-    # Include the marker line itself plus a couple of lines after it
-    end = text.find("\n", idx + len(end_marker))
-    # advance one more newline to capture the name line below "Sincerely,"
-    if end != -1:
-        end = text.find("\n", end + 1)
-    return text[: end if end != -1 else None].strip()
-
-def generate_resume(resume_text: str, config: dict, keywords: dict) -> str:
-    """
-    Generate a tailored resume as a Markdown string.
-
-    Args:
-        resume_text: Text extracted from the base resume PDF.
-        config:      Full config dict.
-        keywords:    Extracted keywords dict from keyword_extractor.
-
-    Returns:
-        Tailored resume in Markdown format.
-    """
-    personal = config["personal"]
-    prompt = _RESUME_PROMPT.format(
-        name=personal["name"],
-        email=personal.get("email", ""),
-        phone=personal.get("phone", ""),
-        linkedin=personal.get("linkedin", ""),
-        github=personal.get("github", ""),
+    github_projects_text = _get_github_projects_text()
+    if not github_projects_text:
+        return ""
+        
+    prompt = _PROJECT_SELECTION_PROMPT.format(
         required_skills=", ".join(keywords.get("required_skills", [])),
         soft_skills=", ".join(keywords.get("soft_skills", [])),
-        resume_text=resume_text[:6000],
+        job_text=job_text[:4000],
+        github_projects_text=github_projects_text[:8000]
+    )
+    
+    if config.get("use_local", True):
+        raw = _call_ollama(prompt, _PROJECT_SELECTION_SYSTEM, config)
+    else:
+        raw = _call_gemini(prompt, config)
+        
+    return raw.strip()
+
+
+def generate_resume(resume_text: str, config: dict, keywords: dict, relevant_projects_text: str) -> str:
+    """
+    Generate a tailored resume as a LaTeX string.
+
+    Args:
+        resume_text:            Text extracted from the base resume .tex file.
+        config:                 Full config dict.
+        keywords:               Extracted keywords dict from keyword_extractor.
+        relevant_projects_text: Pre-selected projects markdown string.
+
+    Returns:
+        Tailored resume in LaTeX format.
+    """
+    prompt = _RESUME_PROMPT.format(
+        required_skills=", ".join(keywords.get("required_skills", [])),
+        soft_skills=", ".join(keywords.get("soft_skills", [])),
+        relevant_projects_text=relevant_projects_text,
+        resume_text=resume_text,
     )
 
     if config.get("use_local", True):
         raw = _call_ollama(prompt, _RESUME_SYSTEM, config)
     else:
         raw = _call_gemini(prompt, config)
-    return _deduplicate(raw, "## EDUCATION")
+    
+    return _clean_latex_output(raw)
 
 
-def generate_cover_letter(
-    cover_letter_text: str,
-    config: dict,
-    keywords: dict,
-    job_text: str,
-    freelance: bool = False,
-) -> str:
+def generate_cover_letter(cover_letter_text: str, config: dict, keywords: dict, job_text: str, relevant_projects_text: str) -> str:
     """
-    Generate a tailored cover letter as a Markdown string.
+    Generate a tailored cover letter as a LaTeX string.
 
     Args:
-        cover_letter_text: Text extracted from the base cover letter PDF.
-        config:            Full config dict.
-        keywords:          Extracted keywords dict.
-        job_text:          Raw scraped or inline job description.
-        freelance:         If True, uses the freelance template (no company paragraph).
+        cover_letter_text:      Text extracted from the base cover letter .tex file.
+        config:                 Full config dict.
+        keywords:               Extracted keywords dict.
+        job_text:               Raw scraped or inline job description.
+        relevant_projects_text: Pre-selected projects markdown string.
 
     Returns:
-        Tailored cover letter in Markdown format.
+        Tailored cover letter in LaTeX format.
     """
     personal = config["personal"]
     company_name = keywords.get("company_name") or "the company"
     job_title = keywords.get("job_title") or "the position"
-    github_user = personal.get("github", "")
 
-    # 1. Fetch GitHub Repos
-    repos = get_github_repos(github_user)
-    github_repos_list = format_repos_for_llm(repos)
-    github_base = "github.com/" + github_user.split("github.com/")[-1].strip("/") if github_user else ""
-
-    # 2. Pick relevant curated projects
-    relevant_curated = []
-    # Search for job title in PROJECTS_BY_ROLE keys
-    matched_role = None
-    for role in PROJECTS_BY_ROLE.keys():
-        if role.lower() in job_title.lower() or job_title.lower() in role.lower():
-            matched_role = role
-            break
-    
-    if matched_role:
-        curated_list = PROJECTS_BY_ROLE[matched_role]
-    else:
-        curated_list = DEFAULT_PROJECTS
-        
-    for p in curated_list:
-        repo_link = f"https://{github_base}/{p['github_repo']}" if github_base and p.get('github_repo') else ""
-        relevant_curated.append(f"- PROJECT: {p['name']}\n  TECH: {p['tech_stack']}\n  DESC: {p['description']}\n  LINK: {repo_link}")
-    
-    relevant_projects_str = "\n".join(relevant_curated)
-
-    if freelance:
-        prompt = _FREELANCE_COVER_LETTER_PROMPT.format(
-            name=personal["name"],
-            email=personal.get("email", ""),
-            phone=personal.get("phone", ""),
-            linkedin=personal.get("linkedin", ""),
-            github_url=github_base,
-            required_skills=", ".join(keywords.get("required_skills", [])),
-            job_text=job_text[:4000],
-            cover_letter_text=cover_letter_text[:3000],
-            relevant_projects=relevant_projects_str,
-            github_repos_list=github_repos_list
-        )
-    else:
-        prompt = _COVER_LETTER_PROMPT.format(
-            name=personal["name"],
-            email=personal.get("email", ""),
-            phone=personal.get("phone", ""),
-            linkedin=personal.get("linkedin", ""),
-            github_url=github_base,
-            job_title=job_title,
-            company_name=company_name,
-            required_skills=", ".join(keywords.get("required_skills", [])),
-            job_text=job_text[:4000],
-            cover_letter_text=cover_letter_text[:3000],
-            relevant_projects=relevant_projects_str,
-            github_repos_list=github_repos_list
-        )
+    prompt = _COVER_LETTER_PROMPT.format(
+        name=personal["name"],
+        job_title=job_title,
+        company_name=company_name,
+        required_skills=", ".join(keywords.get("required_skills", [])),
+        relevant_projects_text=relevant_projects_text,
+        job_text=job_text[:4000],
+        cover_letter_text=cover_letter_text,
+    )
 
     if config.get("use_local", True):
         raw = _call_ollama(prompt, _COVER_LETTER_SYSTEM, config)
     else:
         raw = _call_gemini(prompt, config)
-    return _deduplicate(raw, "Sincerely," if not freelance else "Best regards,")
+        
+    return _clean_latex_output(raw)
 
+
+def generate_freelance_proposal(proposal_text: str, config: dict, keywords: dict, job_text: str, relevant_projects_text: str) -> str:
+    """
+    Generate a tailored freelance proposal as a LaTeX string.
+
+    Args:
+        proposal_text:          Text extracted from the base freelance proposal .tex file.
+        config:                 Full config dict.
+        keywords:               Extracted keywords dict.
+        job_text:               Raw scraped or inline job description.
+        relevant_projects_text: Pre-selected projects markdown string.
+
+    Returns:
+        Tailored freelance proposal in LaTeX format.
+    """
+    personal = config["personal"]
+
+    prompt = _FREELANCE_PROPOSAL_PROMPT.format(
+        name=personal["name"],
+        required_skills=", ".join(keywords.get("required_skills", [])),
+        relevant_projects_text=relevant_projects_text,
+        job_text=job_text[:4000],
+        proposal_text=proposal_text,
+    )
+
+    if config.get("use_local", True):
+        raw = _call_ollama(prompt, _FREELANCE_PROPOSAL_SYSTEM, config)
+    else:
+        raw = _call_gemini(prompt, config)
+        
+    return _clean_latex_output(raw)

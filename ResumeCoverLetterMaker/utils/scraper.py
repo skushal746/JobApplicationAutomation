@@ -13,8 +13,11 @@ SKIP_TAGS = {"script", "style", "nav", "footer", "header", "noscript", "svg"}
 
 def scrape_job(url: str, timeout: int = 30000) -> str:
     """
-    Fetch a job listing URL using Playwright for JS rendering.
+    Fetch a job listing URL. Uses Selenium for Upwork, Playwright for others.
     """
+    if "upwork.com" in url:
+        return _scrape_selenium(url)
+        
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -54,6 +57,40 @@ def _scrape_fallback(url: str) -> str:
         return _parse_html(response.text, url)
     except Exception as e:
         raise Exception(f"All scraping methods failed for {url}: {e}")
+
+def _scrape_selenium(url: str) -> str:
+    """Use undetected-chromedriver for sites with heavy bot protection."""
+    try:
+        import undetected_chromedriver as uc
+        from selenium.webdriver.support.ui import WebDriverWait
+    except ImportError as ie:
+        logging.error(f"undetected-chromedriver or selenium not installed: {ie}")
+        return _scrape_fallback(url)
+        
+    options = uc.ChromeOptions()
+    # Cloudflare often blocks headless=True even with undetected_chromedriver
+    options.headless = False
+    
+    print(f"  [Scraper] Navigating to {url} via Selenium...")
+    try:
+        # Explicitly set version_main=147 to match your installed Chrome version
+        driver = uc.Chrome(options=options, version_main=147)
+        driver.get(url)
+        
+        # Simple wait to let Cloudflare and page load
+        import time
+        time.sleep(5)
+        
+        html = driver.page_source
+        return _parse_html(html, url)
+    except Exception as e:
+        logging.error(f"Selenium scraping failed: {e}")
+        return _scrape_fallback(url)
+    finally:
+        try:
+            driver.quit()
+        except:
+            pass
 
 def _parse_html(html: str, url: str) -> str:
     soup = BeautifulSoup(html, "lxml")

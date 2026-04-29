@@ -1,20 +1,18 @@
-\documentclass[10pt,letterpaper]{article}
+\documentclass[9pt,letterpaper]{extarticle}
 
 % --- PACKAGES ---
-\usepackage[margin=0.5in]{geometry} % Tight margins to fit content
-\usepackage{enumitem} % For custom bullet points
-\usepackage[hidelinks]{hyperref} % For clickable links without ugly boxes
-\usepackage{titlesec} % For custom section headers
+% Top margin increased to 0.3in to ensure Page 2 has a clean, readable boundary
+\usepackage[left=0.5in, right=0.5in, top=0.3in, bottom=0.5in]{geometry} 
+\usepackage{enumitem} 
+\usepackage[hidelinks]{hyperref} 
+\usepackage{titlesec} 
 
 % --- CUSTOM FORMATTING ---
-% Format the section headings (All Caps, Bold, with a horizontal rule below)
-\titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
-\titlespacing{\section}{0pt}{8pt}{4pt}
+\titleformat{\section}{\normalsize\bfseries\uppercase}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{4pt}{2pt} 
 
-% Remove page numbers
 \pagestyle{empty}
 
-% Reduce spacing between paragraphs
 \setlength{\parskip}{0pt}
 \setlength{\parindent}{0pt}
 
@@ -22,8 +20,8 @@
 
 % --- HEADER ---
 \begin{center}
-    {\Huge \textbf{Kushal Sharma}} \\
-    \vspace{4pt}
+    {\LARGE \textbf{Kushal Sharma}} \\ 
+    \vspace{2pt}
     skushal746@gmail.com | \href{https://www.linkedin.com/in/skushal746}{www.linkedin.com/in/skushal746} | \href{https://github.com/skushal746}{https://github.com/skushal746} | 8767716841
 \end{center}
 
@@ -48,14 +46,14 @@ Bachelor of Engineering, in Computer Engineering \\
     \item Mentored junior developers on best practices focusing on Spring Security, Test-Driven Development (JUnit/Mockito) for code quality.
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \textbf{Sonos} | \textit{SDE Intern} | United States \hfill June 2022 - August 2022
 \begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
     \item Designed and implemented real-time distributed tracking systems using Spring Boot, Spring JPA, and ReactJS, improving event visibility by 90\%.
     \item Leveraged asynchronous programming and schedulers to optimize cross-device synchronization. Achieved 90\% code coverage using TDD (JUnit, Mockito), strengthening system reliability.
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \textbf{Itiviti} | \textit{Full Stack Engineer} | India \hfill October 2020 - July 2021
 \begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
     \item Architected high-throughput microservices using Java 8/11 and Spring Boot, implementing custom serialization and efficient memory management to improve data throughput by 20\%.
@@ -64,7 +62,7 @@ Bachelor of Engineering, in Computer Engineering \\
     \item Maintained 95\%+ unit test coverage using JUnit and Mockito, ensuring the stability of critical financial transaction modules.
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \textbf{QualityKiosk Technologies Private Limited} | \textit{Software Developer} | India \hfill July 2019 - February 2020
 \begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
     \item Engineered scalable Spring Boot microservices integrated with ElasticSearch for sub-second search performance to query across 1.5 Terabytes of analytical data.
@@ -73,7 +71,7 @@ Bachelor of Engineering, in Computer Engineering \\
     \item Built reactive analytical dashboards in AngularJS, bridging the gap between high-performance Java backends and intuitive user interfaces for operational reporting.
 \end{itemize}
 
-\vspace{4pt}
+\vspace{3pt}
 \textbf{Verdantis Tech Private Limited} | \textit{Software Developer} | India \hfill July 2017 - June 2019
 \begin{itemize}[leftmargin=0.15in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
     \item Refactored legacy Java modules into a multithreaded Spring architecture, leveraging ExecutorService and Completable Future to boost SFTP and web service throughput by 300\% using JBoss Server.

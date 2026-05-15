@@ -19,6 +19,19 @@ def _call_gemini(prompt: str, config: dict) -> str:
     )
     return response.text.strip()
 
+def _call_openai(prompt: str, system: str, config: dict) -> str:
+    from openai import OpenAI
+    client = OpenAI(api_key=config["openai_api_key"])
+    response = client.chat.completions.create(
+        model=config.get("openai_model", "gpt-4o"),
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user",   "content": prompt},
+        ],
+        temperature=0.4,
+    )
+    return response.choices[0].message.content.strip()
+
 _KEYWORD_PROMPT = """Extract the following from this job description:
 1. Company Name
 2. Job Title

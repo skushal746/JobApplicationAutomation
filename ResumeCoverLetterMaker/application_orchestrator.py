@@ -120,7 +120,10 @@ class JobApplicationManager:
             elif link_type == "freelance":
                 # Generate Freelance Proposal
                 logging.info("Generating tailored Freelance Proposal (LaTeX)...")
-                tailored_proposal_tex = generate_freelance_proposal(proposal_text, self.config, keywords, job_text, relevant_projects_text)
+                tailored_proposal_tex = generate_freelance_proposal(
+                    proposal_text, self.config, keywords, job_text,
+                    relevant_projects_text, resume_text=resume_text
+                )
                 proposal_tex_path = os.path.join(self.output_dir, f"Proposal_freelance_{index+1}.tex")
                 with open(proposal_tex_path, "w", encoding="utf-8") as f:
                     f.write(tailored_proposal_tex)
@@ -141,48 +144,8 @@ if __name__ == "__main__":
     # Example usage:
     manager = JobApplicationManager()
     sample_urls = [
-        # Example URLs
-        # {"url": "https://example.com/job1", "type": "job"},
-        # {"url": "https://example.com/freelance1", "type": "freelance"}
-        {"url": "https://www.upwork.com/jobs/~022049184413304168405", "type": "freelance", "job_description": """ 
-            We are seeking a senior back-end engineer with expertise in AI engineering to develop a production-ready Agent As a Model and SaaS platform. The platform will serve the healthcare and education industries, requiring domain-specific knowledge. The ideal candidate will have experience in designing scalable architectures and integrating AI models into cloud-based systems. Strong problem-solving skills and the ability to work in a fast-paced environment are essential.
-        """},
-        {"url": "https://www.upwork.com/jobs/Node-developer-Full-stack-developer_~022049125295108733081", "type": "freelance", "job_description": """ 
-            Summary
-            We are looking for a skilled Node.js Developer to join our team and help build scalable, high-performance web products. This role requires strong experience in backend development with Node.js, along with solid frontend capabilities using React.
-            You will work on modern web application development, contributing to both backend architecture and frontend implementation as part of a full-stack development process.
-
-
-            Key Responsibilities:
-
-            Experience in SaaS platform development
-            Develop and maintain backend services using Node.js
-            Build responsive and dynamic user interfaces with React, HTML, and CSS
-            Write clean and scalable code using JavaScript and TypeScript
-            Design and integrate API endpoints and third-party services
-            Collaborate on full-cycle web application development
-            Support and extend existing systems, including components built with Python
-
-            Requirements:
-
-            Strong experience with Node.js and backend architecture
-            Solid knowledge of React, HTML and CSS
-            Proficiency in JavaScript and TypeScript
-            Experience with API design and integrations
-            Understanding of full-stack development principles
-            Familiarity with Python is a plus
-
-
-            Nice to Have:
-
-            Experience working on complex web applications
-            Ability to take ownership of features end-to-end
-            Strong problem-solving and communication skills
-            Project Type: Ongoing / Long-term
-            Level: Mid to Senior
-            We’re looking for someone who can think beyond code — someone who understands how to build reliable, scalable, and user-focused products.
-            👉 Send your experience, portfolio, and a short intro.
-        """},
+        {"url": "https://www.upwork.com/jobs/Java-Spring-Boot-Dev-needed_~022054189230050446388/?referrer_url_path=find_work_home", "type": "freelance"},
+        {"url": "https://www.upwork.com/jobs/HIRING-Backend-Developers-YOE_~022053898268209836080/?referrer_url_path=find_work_home", "type": "freelance"}
     ]
     manager.process_urls(sample_urls)
     pass

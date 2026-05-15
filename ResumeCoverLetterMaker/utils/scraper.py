@@ -60,37 +60,47 @@ def _scrape_fallback(url: str) -> str:
 
 def _scrape_selenium(url: str) -> str:
     """Use undetected-chromedriver for sites with heavy bot protection."""
+    import time
     try:
         import undetected_chromedriver as uc
-        from selenium.webdriver.support.ui import WebDriverWait
     except ImportError as ie:
         logging.error(f"undetected-chromedriver or selenium not installed: {ie}")
         return _scrape_fallback(url)
-        
+
     options = uc.ChromeOptions()
     # Cloudflare often blocks headless=True even with undetected_chromedriver
     options.headless = False
-    
+
     print(f"  [Scraper] Navigating to {url} via Selenium...")
-    try:
-        # Explicitly set version_main=147 to match your installed Chrome version
-        driver = uc.Chrome(options=options, version_main=147)
-        driver.get(url)
-        
-        # Simple wait to let Cloudflare and page load
-        import time
-        time.sleep(5)
-        
-        html = driver.page_source
-        return _parse_html(html, url)
-    except Exception as e:
-        logging.error(f"Selenium scraping failed: {e}")
-        return _scrape_fallback(url)
-    finally:
+
+    # Try with current Chrome version (148); if it fails due to version mismatch,
+    # retry without specifying a version so uc auto-detects it.
+    for version_main in [148, None]:
+        driver = None
         try:
+            kwargs = {"options": options}
+            if version_main is not None:
+                kwargs["version_main"] = version_main
+            driver = uc.Chrome(**kwargs)
+            driver.get(url)
+
+            # Wait for Cloudflare challenge and page to fully load
+            time.sleep(7)
+
+            html = driver.page_source
             driver.quit()
-        except:
-            pass
+            return _parse_html(html, url)
+        except Exception as e:
+            logging.warning(f"Selenium attempt (version_main={version_main}) failed: {e}")
+            if driver:
+                try:
+                    driver.quit()
+                except:
+                    pass
+            if version_main is None:
+                # Last attempt also failed — fall back to requests
+                logging.error(f"Selenium scraping failed after all retries: {e}")
+                return _scrape_fallback(url)
 
 def _parse_html(html: str, url: str) -> str:
     soup = BeautifulSoup(html, "lxml")

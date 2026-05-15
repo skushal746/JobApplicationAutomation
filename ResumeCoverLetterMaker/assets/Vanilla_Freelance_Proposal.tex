@@ -1,92 +1,162 @@
 \documentclass[11pt,letterpaper]{article}
 
 % --- PACKAGES ---
-\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry} 
-\usepackage[hidelinks]{hyperref} 
+\usepackage[left=1in, right=1in, top=0.85in, bottom=0.85in]{geometry}
+\usepackage[hidelinks, colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref}
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{parskip}
 
 % --- CUSTOM FORMATTING ---
-\setcounter{secnumdepth}{0} % Disable section numbering
+\setcounter{secnumdepth}{0}
 \titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
-\titlespacing{\section}{0pt}{12pt}{8pt}
+\titlespacing{\section}{0pt}{14pt}{8pt}
 
 \pagestyle{empty}
 
-\setlength{\parskip}{0.8em}
+\setlength{\parskip}{0.75em}
 \setlength{\parindent}{0pt}
 
 \begin{document}
 
-% --- HEADER ---
+% ================================================================
+%  HEADER
+% ================================================================
 \begin{center}
-    {\LARGE \textbf{Kushal Sharma}} \\ 
-    \vspace{2pt}
-    skushal746@gmail.com | \href{https://www.linkedin.com/in/skushal746}{www.linkedin.com/in/skushal746} | \href{https://github.com/skushal746}{https://github.com/skushal746} | 8767716841
+    {\LARGE \textbf{Kushal Sharma}} \\
+    \vspace{3pt}
+    \small
+    \href{https://github.com/skushal746}{github.com/skushal746} \quad|\quad
+    \href{https://www.linkedin.com/in/skushal746}{linkedin.com/in/skushal746}
 \end{center}
 
-\vspace{1.5em}
-
-{\Large \textbf{Proposal -- Backend Developer}} \\
 \vspace{0.5em}
+\noindent\rule{\linewidth}{0.6pt}
+\vspace{0.2em}
 
+{\Large \textbf{Freelance Proposal -- Backend Developer}}
+
+\vspace{0.3em}
+
+% ================================================================
+%  OPENING
+% ================================================================
 Hello,
 
-I'm a Senior Backend Engineer specializing in Java, Spring Boot, and scalable microservices, with experience building production systems for U.S. and India-based companies. I focus on clean architecture, reliable APIs, and performance at scale, which aligns well with your need for someone who can build clean, scalable, and reliable backend systems.
+I'm a Senior Backend Engineer with 4+ years of experience building production-grade systems in Java, Spring Boot, and distributed microservices architectures. I've shipped backend solutions for U.S.- and India-based companies across fintech, e-commerce, healthcare, and SaaS domains. I am applying for your Backend Developer project and believe my depth of experience in scalable API design, distributed systems, and clean architecture aligns directly with what you need.
 
-Over the last several years, I have:
+% ================================================================
+%  SECTION 1 — WHY I'M A FIT
+% ================================================================
+\section{Why I'm a Strong Fit}
 
-\begin{itemize}[leftmargin=0.25in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
-    \item Designed and deployed RESTful APIs and distributed backend services using Java 17/21, Spring Boot, Hibernate, and MySQL/PostgreSQL on AWS, improving system performance and reliability for enterprise clients.
-    \item Built microservices architectures with asynchronous messaging (RabbitMQ, schedulers, Spring Batch) to handle cross-device synchronization, background processing, and high-throughput workloads with strong uptime guarantees.
-    \item Implemented robust security using Spring Security with OAuth2/JWT, and followed best practices for authentication, authorization, and data protection across multiple applications.
-    \item Optimized database access using relational databases and MongoDB, including aggregation pipelines, indexing, and caching (LRU, Redis) to reduce latency and improve throughput.
-    \item Maintained high code quality through TDD with JUnit and Mockito, CI/CD pipelines with Maven/Jenkins, and close collaboration with cross-functional teams (frontend, data, product).
+Over the past several years, I have consistently delivered production-quality backend systems that are reliable, maintainable, and built for growth. Here is a concise summary of what I bring to this engagement:
+
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=1pt]
+    \item \textbf{Java \& Spring Boot expertise:} Delivered RESTful APIs and microservices using Java 17/21, Spring Boot, Spring Security (OAuth2/JWT), Spring Batch, and Spring WebFlux for enterprise-scale clients.
+    \item \textbf{Distributed systems \& messaging:} Architected event-driven systems with Apache Kafka and RabbitMQ, handling asynchronous workloads, cross-service communication, and guaranteed message delivery.
+    \item \textbf{Database design \& optimization:} Worked extensively with MySQL, PostgreSQL, and MongoDB — including schema design, index tuning, aggregation pipelines, and caching layers (Redis, LRU) to maximize throughput.
+    \item \textbf{Cloud \& DevOps:} Deployed and operated services on AWS (EC2, S3, RDS, Lambda), containerized with Docker and Docker Compose, integrated CI/CD pipelines using Maven, Jenkins, and GitHub Actions.
+    \item \textbf{Security \& compliance:} Implemented role-based access control, JWT refresh flows, and secure session management across multiple SaaS applications.
+    \item \textbf{Testing \& code quality:} Maintained high coverage through TDD with JUnit and Mockito, and enforced quality via code reviews and automated lint/analysis tools.
 \end{itemize}
 
-\section{Representative backend work}
+% ================================================================
+%  SECTION 2 — RELEVANT PROJECTS
+% ================================================================
+\section{Relevant GitHub Projects}
 
-\textbf{1. Enterprise SaaS backend for a U.S.-based client}
-\begin{itemize}[leftmargin=0.25in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
-    \item \textbf{Role:} Backend Engineer (Java/Spring Boot).
-    \item Built and scaled RESTful APIs and microservices using Java 17/21, Spring Boot, Hibernate, MySQL, and AWS, including ML/NLP-powered search and recommendation features to improve user engagement and query relevance.
-    \item Designed distributed schedulers and background jobs with Spring Batch and messaging to ensure high reliability and 99.9\%+ uptime for enterprise customers.
-\end{itemize}
+Below are selected open-source projects from my GitHub that are directly relevant to this engagement. Each includes a link so you can review the code.
+
 \vspace{4pt}
 
-\textbf{2. Real-time tracking and analytics system}
-\begin{itemize}[leftmargin=0.25in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
-    \item \textbf{Role:} Backend Developer.
-    \item Developed a real-time distributed tracking backend using Spring Boot and Spring JPA, integrating with front-end clients and leveraging asynchronous processing and schedulers for cross-device synchronization.
-    \item Focused on observability, reliability, and test coverage (TDD with JUnit/Mockito) to ensure stable behavior under load.
-\end{itemize}
-\vspace{4pt}
-
-\textbf{3. High-throughput financial data microservices}
-\begin{itemize}[leftmargin=0.25in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
-    \item \textbf{Role:} Backend / Full Stack Engineer.
-    \item Architected high-throughput microservices with Java and Spring Boot (including non-blocking I/O with Spring WebFlux) to serve real-time financial data streams.
-    \item Optimized persistence with MongoDB aggregation pipelines and in-memory caching, reducing query latency and improving responsiveness for demanding clients.
+\textbf{1. KafkaMart -- Event-Driven E-Commerce Microservices}\\
+\href{https://github.com/skushal746/KafkaMart}{\texttt{github.com/skushal746/KafkaMart}} \hfill \textit{Java, Spring Boot, Apache Kafka, Docker}
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Designed an event-driven e-commerce platform with independently deployable microservices (Order, Inventory, Payment, Notification) communicating through Kafka topics.
+    \item Implemented asynchronous order processing pipelines ensuring at-least-once delivery guarantees and graceful failure handling.
+    \item Containerized the full stack with Docker Compose, enabling zero-friction local dev and parity with production environments.
 \end{itemize}
 
-\section{How I can help on this project}
+\vspace{6pt}
 
-For your Backend Developer role, I can:
-
-\begin{itemize}[leftmargin=0.25in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
-    \item Design or refine a scalable backend architecture (service boundaries, data models, and API contracts) suited to your current and future requirements.
-    \item Implement clean, well-tested RESTful APIs and supporting services with Java/Spring Boot, focusing on reliability, observability, and maintainability.
-    \item Work with relational or NoSQL databases to model data effectively, tune performance, and plan safe migrations as the product evolves.
-    \item Integrate third-party services and internal systems while keeping boundaries clean and failure modes well-handled.
-    \item Help set up or improve CI/CD, testing, and monitoring so that changes can be shipped confidently.
+\textbf{2. BookingPlatform -- Scalable Movie Booking Backend}\\
+\href{https://github.com/skushal746/BookingPlatform}{\texttt{github.com/skushal746/BookingPlatform}} \hfill \textit{Java, Spring Boot, JPA, MySQL}
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Built a full booking backend with seat management, show scheduling, and ticket reservation APIs, handling concurrent booking requests with optimistic locking.
+    \item Applied domain-driven design to cleanly separate entities (Theatre, Show, Seat, Booking) and enforce business invariants at the service layer.
+    \item Leveraged Spring Data JPA with MySQL for transactional integrity across multi-step booking flows.
 \end{itemize}
 
-I'd be happy to discuss your current backend setup, immediate priorities, and roadmap, and share how I can help you improve performance, reliability, and developer productivity over the next few months.
+\vspace{6pt}
 
-Thank you for your time and consideration.
+\textbf{3. UserServiceSpringSecurity -- JWT Auth Service}\\
+\href{https://github.com/skushal746/UserServiceSpringSecurity}{\texttt{github.com/skushal746/UserServiceSpringSecurity}} \hfill \textit{Java, Spring Boot, Spring Security, JWT}
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Implemented a standalone authentication and authorization service using Spring Security 6 and JWT, including secure token issuance, refresh, and revocation flows.
+    \item Designed role-based access control (RBAC) to protect API endpoints across services.
+    \item Built with production security principles: password hashing (BCrypt), token expiry windows, and stateless session management.
+\end{itemize}
 
-Best regards, \\
+\vspace{6pt}
+
+\textbf{4. Spring AI Workshop -- AI-Augmented Java Services}\\
+\href{https://github.com/skushal746/spring-ai-workshop}{\texttt{github.com/skushal746/spring-ai-workshop}} \hfill \textit{Java, Spring Boot, Spring AI, LLM integration}
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt]
+    \item Explored integrating large language models into Spring Boot services using the Spring AI 1.0 framework -- chatbots, document analysis, and multimodal processing.
+    \item Demonstrates ability to bridge classical Java backend engineering with emerging AI capabilities in production systems.
+\end{itemize}
+
+% ================================================================
+%  SECTION 3 — HOW I WORK
+% ================================================================
+\section{How I Approach Freelance Engagements}
+
+I treat every project as if it were my own product. My working process is structured to minimize back-and-forth and maximize delivery confidence:
+
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=1pt]
+    \item \textbf{Discovery first:} I start by understanding your business problem, existing stack, and non-functional requirements (latency targets, scalability, uptime SLAs) before writing a single line of code.
+    \item \textbf{Incremental delivery:} I break work into small, reviewable milestones. You see progress early, and we can course-correct without waste.
+    \item \textbf{Async-friendly communication:} I provide clear written updates, commit messages, and documentation so you are never blocked waiting for a sync.
+    \item \textbf{Handoff-ready code:} I write code that your team can maintain after I'm gone -- with tests, documentation, and clean architecture rather than clever hacks.
+    \item \textbf{Timezone flexibility:} I'm based in India (IST) and can accommodate overlap windows with U.S. / EU teams for live syncs.
+\end{itemize}
+
+% ================================================================
+%  SECTION 4 — HOW I CAN HELP ON THIS PROJECT
+% ================================================================
+\section{How I Can Help on This Project}
+
+Based on the project requirements, here is specifically what I propose to contribute:
+
+\begin{itemize}[leftmargin=0.3in, noitemsep, topsep=2pt, partopsep=0pt, parsep=1pt]
+    \item Design or audit the backend service architecture -- service boundaries, API contracts, and data models -- ensuring it will scale cleanly as your product grows.
+    \item Implement production-quality RESTful APIs and microservices using Java/Spring Boot, with full test coverage and observability hooks (logging, metrics, health checks).
+    \item Work with your relational or NoSQL databases to optimize schema design, query performance, and safe migration strategies.
+    \item Integrate third-party APIs and internal services with clean abstraction layers, robust error handling, and retries where appropriate.
+    \item Set up or improve CI/CD pipelines, test automation, and Docker-based deployment workflows to enable fast, confident releases.
+\end{itemize}
+
+I have delivered outcomes like these for multiple clients and would be glad to walk you through specific past results on a call.
+
+% ================================================================
+%  CLOSING
+% ================================================================
+\section{Next Steps}
+
+I'd welcome a short discovery call to understand your current backend setup, immediate delivery priorities, and the shape of engagement that works best for you (hourly, milestone-based, or retainer).
+
+You can review my open-source work at \href{https://github.com/skushal746}{\texttt{github.com/skushal746}} and my professional background at \href{https://www.linkedin.com/in/skushal746}{\texttt{linkedin.com/in/skushal746}}.
+
+Thank you for your time and consideration. I look forward to the opportunity to contribute to your project.
+
 \vspace{1em}
-Kushal Sharma
+Best regards,\\
+\vspace{0.8em}
+{\large \textbf{Kushal Sharma}}\\
+\small \href{https://github.com/skushal746}{github.com/skushal746} \quad|\quad \href{https://www.linkedin.com/in/skushal746}{linkedin.com/in/skushal746}
 
 \end{document}

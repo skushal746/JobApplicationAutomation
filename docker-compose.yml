@@ -3,14 +3,14 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: hitl_db
+      MYSQL_DATABASE: job_application_automation_db
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_USER: hitl_user
-      MYSQL_PASSWORD: hitl_password
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
     ports:
       - "3306:3306"
     volumes:
-      - ./docker_data/db:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
@@ -18,50 +18,34 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    build: ./backend-spring
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
-      - DATABASE_URL=mysql+pymysql://hitl_user:hitl_password@db:3306/hitl_db
-      - OLLAMA_BASE=http://host.docker.internal:11434
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/app_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=app_user
+      - SPRING_DATASOURCE_PASSWORD=app_password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/.venv
-      - ./ResumeCoverLetterMaker/config-kushal.yaml:/app/user_config.yaml
-    # Enable hot-reloading
-    command: [ "uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
     restart: always
 
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend-react
       target: dev
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    restart: always
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8080:8080"
-
-  browser:
-    image: ghcr.io/browserless/chromium:latest
-    restart: always
     ports:
       - "3000:3000"
     environment:
-      - CONCURRENT=10
-      - TOKEN=secret_token
-    # browserless is optimized for headless execution
+      - REACT_APP_API_URL=http://localhost:8080
+    volumes:
+      - ./frontend-react:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  mysql_data:

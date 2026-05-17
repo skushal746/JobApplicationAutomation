@@ -1,5 +1,5 @@
 # Build stage — compile and package the Spring Boot jar
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
 COPY mvnw .
@@ -11,7 +11,7 @@ COPY src src
 RUN ./mvnw package -DskipTests
 
 # Runtime stage — minimal JRE image
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/app_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/job_application_automation_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:app_user}
     password: ${SPRING_DATASOURCE_PASSWORD:app_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -17,6 +17,10 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
+
+jwt:
+  secret: ${JWT_SECRET:3d7a9f2e1b4c8d6e0f5a3b2c1d4e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4}
+  expiration: 86400000
 
 server:
   port: 8080

@@ -56,8 +56,10 @@ class JobApplicationManager:
         Process a list of URLs and generate corresponding documents.
         
         Args:
-            urls_info: List of dicts like [{"url": "https://...", "type": "job"}]
-                       where "type" is either "job" or "freelance".
+            urls_info: List of dicts like:
+              - {"url": "https://...", "type": "job"}  — scraped from URL
+              - {"description": "...", "url": "", "type": "freelance"}  — description provided directly
+            where "type" is either "job" or "freelance".
         """
         # Load templates
         resume_text = self._read_file(self.resume_template_path)
@@ -65,18 +67,23 @@ class JobApplicationManager:
         proposal_text = self._read_file(self.freelance_proposal_template_path)
         
         for index, item in enumerate(urls_info):
-            url = item.get("url", "Manual Entry")
+            url = item.get("url", "").strip()
             link_type = item.get("type", "job").lower()
-            job_text = item.get("job_description")
+            # Accept either 'job_description' (legacy) or 'description' (freelance shorthand)
+            job_text = item.get("job_description") or item.get("description")
             
             if not url and not job_text:
                 logging.warning("Skipping item with no URL and no job description.")
                 continue
-                
-            logging.info(f"Processing {link_type} for: {url}")
             
-            # Scrape only if job_text is not manually provided
+            label = url if url else "(description provided directly)"
+            logging.info(f"Processing {link_type} for: {label}")
+            
+            # Scrape only when no description was provided AND a valid URL exists
             if not job_text:
+                if not url:
+                    logging.warning("No job description and no URL to scrape — skipping.")
+                    continue
                 try:
                     job_text = scrape_job(url)
                 except Exception as e:
@@ -138,14 +145,51 @@ class JobApplicationManager:
             else:
                 logging.warning(f"Unknown link type '{link_type}', skipping.")
                 
-            logging.info(f"Finished processing {url}. Generated PDFs: {generated_pdfs}\n")
+            logging.info(f"Finished processing {label}. Generated PDFs: {generated_pdfs}\n")
 
 if __name__ == "__main__":
     # Example usage:
     manager = JobApplicationManager()
     sample_urls = [
-        {"url": "https://www.upwork.com/jobs/Java-Spring-Boot-Dev-needed_~022054189230050446388/?referrer_url_path=find_work_home", "type": "freelance"},
-        {"url": "https://www.upwork.com/jobs/HIRING-Backend-Developers-YOE_~022053898268209836080/?referrer_url_path=find_work_home", "type": "freelance"}
+        {"description": "I’ve integrated a ChatGPT-based solution into my website and am looking for a developer who can refine its implementation, improve efficiency, and enhance the overall user experience." ,"url": "", "type": "freelance"},
+        {"description": """We are seeking a full-stack developer with strong expertise in using GenAI models, Java (Spring Boot) and Vue3 to join our eCommerce team. In this role, you will develop and maintain our centralized AI platform, support model service integration, and automate workflows across both frontend and backend systems. Experience with cloud deployment, international collaboration, and fluent English communication is required. Python and React experience are considered a plus.
+
+                            Job Tasks and Responsibilities:
+                            • Develop and maintain the AI platform, including various AI workflows, user management, parameter configuration, and feedback interfaces using Java (Spring Boot) for backend and Vue3 for frontend.
+                            • Integrate AI models from different vendors (Google, OpenAI, etc) and build related API interfaces for image, text, video and other functionalities.
+                            • Automate enterprise eCommerce workflows by integrating the system with other platforms like Salsify and Salesforce Commerce Cloud to push generated content and update records.
+                            • Deploy and monitor services using Google Cloud infrastructure (Cloud Run, Cloud Functions, Vertex AI, etc.).
+                            • Build task scheduling systems with queue handling, failure retry logic, and progress monitoring.
+                            • Collaborate with designers, frontend engineers and marketeers to optimize prompt structures and AI output quality.
+                            • Participate in English-speaking team meetings and write technical documentation in English.
+                            ________________________________________
+                            Qualifications:
+                            • Education: Bachelor’s degree or above in Computer Science, Software Engineering, Artificial Intelligence, or related fields.
+                            • Experience:
+                            o 3+ years of Java development with Spring Boot (must-have)
+                            o Strong hands-on experience with Vue3 (must-have)
+                            o Experience with AI-related projects and cloud platforms required
+                            o Python/React, eCommerce and/or PIM systems experience is a plus
+                            ________________________________________
+                            Knowledge and Skills:
+                            • Backend: Proficient in Java (Spring Boot); Python (FastAPI, Flask) is a plus
+                            • Frontend: Strong with Vue3 (must-have); React experience is a plus
+                            • Expert in designing RESTful APIs, including authentication, pagination, and documentation
+                            • Experience with async task frameworks and message queues (e.g., Celery, Kafka, RabbitMQ)
+                            • Strong database knowledge (MongoDB, PostgreSQL) with optimization skills
+                            • Hands-on with Google Cloud services (Cloud Run, Vertex AI, Cloud Storage, etc.)
+                            • Experience with packaging and calling GenAI models
+                            • Proficient in Docker, shell scripting, Git, and CI/CD workflows
+                            • Basic image processing skills (Pillow, OpenCV) for format conversion and compatibility handling
+                            ________________________________________
+                            Language and Communication Skills:
+                            • Fluent in English (spoken and written), capable of writing documentation and participating in technical discussions with international teams
+                            ________________________________________
+                            Personal Attributes:
+                            • Proactive, analytical thinker with a strong sense of ownership
+                            • Detail-oriented, with solid coding standards and documentation habits
+                            • Quick learner who adapts to evolving technologies
+                            • Effective communicator and team player in cross-functional environments""" ,"url": "", "type": "freelance"}
     ]
     manager.process_urls(sample_urls)
     pass

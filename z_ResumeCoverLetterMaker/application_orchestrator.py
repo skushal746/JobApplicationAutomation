@@ -151,45 +151,8 @@ if __name__ == "__main__":
     # Example usage:
     manager = JobApplicationManager()
     sample_urls = [
-        {"description": "I’ve integrated a ChatGPT-based solution into my website and am looking for a developer who can refine its implementation, improve efficiency, and enhance the overall user experience." ,"url": "", "type": "freelance"},
-        {"description": """We are seeking a full-stack developer with strong expertise in using GenAI models, Java (Spring Boot) and Vue3 to join our eCommerce team. In this role, you will develop and maintain our centralized AI platform, support model service integration, and automate workflows across both frontend and backend systems. Experience with cloud deployment, international collaboration, and fluent English communication is required. Python and React experience are considered a plus.
-
-                            Job Tasks and Responsibilities:
-                            • Develop and maintain the AI platform, including various AI workflows, user management, parameter configuration, and feedback interfaces using Java (Spring Boot) for backend and Vue3 for frontend.
-                            • Integrate AI models from different vendors (Google, OpenAI, etc) and build related API interfaces for image, text, video and other functionalities.
-                            • Automate enterprise eCommerce workflows by integrating the system with other platforms like Salsify and Salesforce Commerce Cloud to push generated content and update records.
-                            • Deploy and monitor services using Google Cloud infrastructure (Cloud Run, Cloud Functions, Vertex AI, etc.).
-                            • Build task scheduling systems with queue handling, failure retry logic, and progress monitoring.
-                            • Collaborate with designers, frontend engineers and marketeers to optimize prompt structures and AI output quality.
-                            • Participate in English-speaking team meetings and write technical documentation in English.
-                            ________________________________________
-                            Qualifications:
-                            • Education: Bachelor’s degree or above in Computer Science, Software Engineering, Artificial Intelligence, or related fields.
-                            • Experience:
-                            o 3+ years of Java development with Spring Boot (must-have)
-                            o Strong hands-on experience with Vue3 (must-have)
-                            o Experience with AI-related projects and cloud platforms required
-                            o Python/React, eCommerce and/or PIM systems experience is a plus
-                            ________________________________________
-                            Knowledge and Skills:
-                            • Backend: Proficient in Java (Spring Boot); Python (FastAPI, Flask) is a plus
-                            • Frontend: Strong with Vue3 (must-have); React experience is a plus
-                            • Expert in designing RESTful APIs, including authentication, pagination, and documentation
-                            • Experience with async task frameworks and message queues (e.g., Celery, Kafka, RabbitMQ)
-                            • Strong database knowledge (MongoDB, PostgreSQL) with optimization skills
-                            • Hands-on with Google Cloud services (Cloud Run, Vertex AI, Cloud Storage, etc.)
-                            • Experience with packaging and calling GenAI models
-                            • Proficient in Docker, shell scripting, Git, and CI/CD workflows
-                            • Basic image processing skills (Pillow, OpenCV) for format conversion and compatibility handling
-                            ________________________________________
-                            Language and Communication Skills:
-                            • Fluent in English (spoken and written), capable of writing documentation and participating in technical discussions with international teams
-                            ________________________________________
-                            Personal Attributes:
-                            • Proactive, analytical thinker with a strong sense of ownership
-                            • Detail-oriented, with solid coding standards and documentation habits
-                            • Quick learner who adapts to evolving technologies
-                            • Effective communicator and team player in cross-functional environments""" ,"url": "", "type": "freelance"}
+        {"description": "We are seeking a skilled software developer to join our team. The ideal candidate will have a strong foundation in algorithms and data structures, proficiency in multiple programming languages, and experience with database management. Familiarity with version control systems like Git and software architecture is essential. The role involves developing, testing, and maintaining software applications." ,"url": "", "type": "freelance"},
+        {"description": "We are seeking an experienced full stack engineer to join our team. The ideal candidate will have a strong background in both front-end and back-end development, with the ability to work on a variety of projects. Responsibilities include developing and maintaining web applications, collaborating with cross-functional teams, and ensuring high-quality code delivery. If you have a passion for technology and a proven track record in full stack development, we would love to hear from you." ,"url": "", "type": "freelance"}
     ]
     manager.process_urls(sample_urls)
     pass

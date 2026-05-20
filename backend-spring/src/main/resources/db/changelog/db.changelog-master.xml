@@ -7,5 +7,6 @@
 
     <include file="db/changelog/changes/001-create-user-table.xml"/>
     <include file="db/changelog/changes/002-create-upwork-jobs-table.xml"/>
+    <include file="db/changelog/changes/003-add-processed-datetime-to-upwork-jobs.xml"/>
 
 </databaseChangeLog>

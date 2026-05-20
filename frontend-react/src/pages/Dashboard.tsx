@@ -1,12 +1,14 @@
+import { Box } from '@mui/material'
+import { Outlet } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 
 export default function Dashboard() {
   return (
-    <div className="dashboard-layout">
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f0f2f5' }}>
       <Navbar />
-      <main className="dashboard-main">
-        <h1>Job Application Automation</h1>
-      </main>
-    </div>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Outlet />
+      </Box>
+    </Box>
   )
 }

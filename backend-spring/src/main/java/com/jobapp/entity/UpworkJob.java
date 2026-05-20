@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "upwork_jobs")
 @Data
@@ -46,4 +48,7 @@ public class UpworkJob {
 
     @Column(columnDefinition = "TEXT")
     private String question4;
+
+    @Column(name = "processed_datetime")
+    private LocalDateTime processedDatetime;
 }

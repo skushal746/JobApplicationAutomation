@@ -6,6 +6,7 @@ import com.jobapp.dto.SignupRequest;
 import com.jobapp.entity.User;
 import com.jobapp.repository.UserRepository;
 import com.jobapp.security.JwtService;
+import com.jobapp.service.EmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
@@ -46,6 +48,7 @@ public class AuthController {
         }
 
         userRepository.save(user);
+        emailService.sendWelcomeEmail(user.getEmail());
         String token = jwtService.generateToken(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token, user.getEmail()));
     }

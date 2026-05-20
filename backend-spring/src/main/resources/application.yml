@@ -18,6 +18,16 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
 
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 jwt:
   secret: ${JWT_SECRET:3d7a9f2e1b4c8d6e0f5a3b2c1d4e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4}
   expiration: 86400000

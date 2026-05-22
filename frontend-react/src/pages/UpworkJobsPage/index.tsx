@@ -13,7 +13,14 @@ import {
   Box,
   Link,
   Chip,
+  Button,
+  IconButton,
+  Tooltip,
 } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { useNavigate } from 'react-router-dom'
 
 interface UpworkJob {
   id: number
@@ -29,15 +36,14 @@ interface UpworkJob {
   processedDatetime: string | null
 }
 
-const columns = [
-  'ID', 'Title', 'URL', 'Description',
-  'Proposal', 'Cover Letter', 'Q1', 'Q2', 'Q3', 'Q4', 'Processed At',
-]
+const columns = ['Title', 'URL', 'Proposal', 'Cover Letter', 'Processed At', '']
 
 export default function UpworkJobsPage() {
   const [jobs, setJobs] = useState<UpworkJob[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -53,6 +59,21 @@ export default function UpworkJobsPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const handleProcess = (id: number) => {
+    // TODO: wire up process endpoint
+    console.log('Process job', id)
+  }
+
+  const handleDelete = (id: number) => {
+    const token = localStorage.getItem('token')
+    fetch(`/api/upwork-jobs/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }).then(res => {
+      if (res.ok) setJobs(prev => prev.filter(j => j.id !== id))
+    })
+  }
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
@@ -67,9 +88,25 @@ export default function UpworkJobsPage() {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Upwork Jobs
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          Upwork Jobs
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate('/dashboard/upwork/add')}
+          sx={{
+            background: 'linear-gradient(195deg, #49a3f1, #1A73E8)',
+            boxShadow: '0 3px 10px rgba(26,115,232,0.35)',
+            textTransform: 'none',
+            fontWeight: 600,
+            '&:hover': { background: 'linear-gradient(195deg, #3d8fd4, #1557b0)' },
+          }}
+        >
+          Add Job
+        </Button>
+      </Box>
 
       {jobs.length === 0 ? (
         <Alert severity="info">No jobs found.</Alert>
@@ -81,9 +118,9 @@ export default function UpworkJobsPage() {
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                {columns.map(col => (
+                {columns.map((col, i) => (
                   <TableCell
-                    key={col}
+                    key={i}
                     sx={{
                       fontWeight: 700,
                       fontSize: '0.75rem',
@@ -101,18 +138,19 @@ export default function UpworkJobsPage() {
             </TableHead>
             <TableBody>
               {jobs.map(job => (
-                <TableRow key={job.id} hover>
-                  <TableCell>{job.id}</TableCell>
-                  <TableCell sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <TableRow
+                  key={job.id}
+                  hover
+                  onMouseEnter={() => setHoveredRow(job.id)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                >
+                  <TableCell sx={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {job.title}
                   </TableCell>
                   <TableCell>
                     <Link href={job.url} target="_blank" rel="noreferrer" underline="hover">
                       Link
                     </Link>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {job.description ?? '—'}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -130,20 +168,30 @@ export default function UpworkJobsPage() {
                       variant="outlined"
                     />
                   </TableCell>
-                  <TableCell sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {job.question1 ?? '—'}
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {job.question2 ?? '—'}
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {job.question3 ?? '—'}
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {job.question4 ?? '—'}
-                  </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     {job.processedDatetime ?? '—'}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'right' }}>
+                    <Box sx={{ visibility: hoveredRow === job.id ? 'visible' : 'hidden', display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                      <Tooltip title="Start Processing">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleProcess(job.id)}
+                          sx={{ color: '#1A73E8', '&:hover': { bgcolor: 'rgba(26,115,232,0.08)' } }}
+                        >
+                          <PlayArrowIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDelete(job.id)}
+                          sx={{ color: '#e53935', '&:hover': { bgcolor: 'rgba(229,57,53,0.08)' } }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}

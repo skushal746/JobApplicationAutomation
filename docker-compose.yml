@@ -35,6 +35,8 @@ services:
       mailpit:
         condition: service_started
     restart: always
+    volumes:
+      - ./backend-spring:/app
 
   mailpit:
     image: axllent/mailpit

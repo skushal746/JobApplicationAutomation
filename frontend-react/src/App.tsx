@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import Dashboard from './pages/Dashboard'
 import UpworkJobsPage from './pages/UpworkJobsPage'
+import AddUpworkJob from './pages/UpworkJobsPage/add'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="upwork" element={<UpworkJobsPage />} />
+          <Route path="upwork/add" element={<AddUpworkJob />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

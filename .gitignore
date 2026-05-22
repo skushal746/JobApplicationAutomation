@@ -1,5 +1,6 @@
 # Docker Data
 docker_data/
+data/
 
 # Python
 __pycache__/

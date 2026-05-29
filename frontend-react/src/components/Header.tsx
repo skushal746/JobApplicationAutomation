@@ -1,6 +1,26 @@
-import { AppBar, Toolbar, Avatar, Box, Typography } from '@mui/material'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AppBar, Toolbar, Avatar, Box, Typography, Menu, MenuItem, ListItemIcon } from '@mui/material'
+import LogoutIcon from '@mui/icons-material/Logout'
 
 export default function Header() {
+  const navigate = useNavigate()
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  function handleAvatarClick(e: React.MouseEvent<HTMLElement>) {
+    setAnchorEl(e.currentTarget)
+  }
+
+  function handleClose() {
+    setAnchorEl(null)
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    handleClose()
+    navigate('/login')
+  }
+
   return (
     <AppBar
       position="static"
@@ -22,6 +42,7 @@ export default function Header() {
             </Typography>
           </Box>
           <Avatar
+            onClick={handleAvatarClick}
             sx={{
               width: 36,
               height: 36,
@@ -34,6 +55,26 @@ export default function Header() {
           >
             KS
           </Avatar>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            slotProps={{
+              paper: {
+                elevation: 3,
+                sx: { mt: 0.5, minWidth: 140, borderRadius: 2 },
+              },
+            }}
+          >
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
         </Box>
       </Toolbar>
     </AppBar>

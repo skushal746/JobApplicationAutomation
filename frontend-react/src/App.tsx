@@ -4,6 +4,8 @@ import SignupPage from './pages/SignupPage'
 import Dashboard from './pages/Dashboard'
 import UpworkJobsPage from './pages/UpworkJobsPage'
 import AddUpworkJob from './pages/UpworkJobsPage/add'
+import JobEntriesPage from './pages/JobEntriesPage'
+import AddJobEntry from './pages/JobEntriesPage/add'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />}>
             <Route path="upwork" element={<UpworkJobsPage />} />
             <Route path="upwork/add" element={<AddUpworkJob />} />
+            <Route path="job-entries" element={<JobEntriesPage />} />
+            <Route path="job-entries/add" element={<AddJobEntry />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

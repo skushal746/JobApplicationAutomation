@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import WorkIcon from '@mui/icons-material/Work'
+import ListAltIcon from '@mui/icons-material/ListAlt'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { NavLink } from 'react-router-dom'
@@ -19,6 +20,7 @@ const COLLAPSED_WIDTH = 65
 
 const navItems = [
   { label: 'Upwork', path: '/dashboard/upwork', icon: <WorkIcon /> },
+  { label: 'Job Entries', path: '/dashboard/job-entries', icon: <ListAltIcon /> },
 ]
 
 interface NavbarProps {

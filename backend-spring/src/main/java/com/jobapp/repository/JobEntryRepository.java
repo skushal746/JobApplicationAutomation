@@ -14,6 +14,8 @@ public interface JobEntryRepository extends JpaRepository<JobEntry, Long> {
 
     List<JobEntry> findByUserId(Long userId);
 
+    List<JobEntry> findByUserIdOrderByCreatedAtDesc(Long userId);
+
     List<JobEntry> findByStatus(JobEntryStatus status);
 
     boolean existsByUserIdAndUrl(Long userId, String url);

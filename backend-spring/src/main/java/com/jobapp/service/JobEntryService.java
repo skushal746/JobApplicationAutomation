@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class JobEntryService {
@@ -18,6 +20,10 @@ public class JobEntryService {
     private static final String DUPLICATE_MESSAGE = "You already have a job entry with this URL";
 
     private final JobEntryRepository jobEntryRepository;
+
+    public List<JobEntry> getAllForUser(Long userId) {
+        return jobEntryRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
 
     public JobEntry create(Long userId, CreateJobEntryRequest request) {
         String url = request.getUrl().trim();

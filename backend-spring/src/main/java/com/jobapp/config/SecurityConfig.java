@@ -34,6 +34,8 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                // Spring forwards exceptions to /error; without this, every 4xx/5xx becomes a 403.
+                .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

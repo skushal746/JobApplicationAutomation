@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <!--
+        job_type and status are stored as VARCHAR rather than native MySQL ENUMs.
+        Allowed values live in the Java enums com.jobapp.entity.JobType and
+        com.jobapp.entity.JobEntryStatus, so adding a value needs no ALTER TABLE.
+
+        url is capped at 700 characters so the (user_id, url) unique key stays under
+        InnoDB's 3072-byte index limit: 700 chars x 4 bytes (utf8mb4) + 8 bytes (BIGINT).
+    -->
+    <changeSet id="004" author="jobapp">
+        <createTable tableName="job_entry">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_job_entry_user"
+                             referencedTableName="users"
+                             referencedColumnNames="id"
+                             deleteCascade="true"/>
+            </column>
+            <column name="url" type="VARCHAR(700)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="job_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="job_entry"
+                             columnNames="user_id, url"
+                             constraintName="uk_job_entry_user_url"/>
+    </changeSet>
+
+</databaseChangeLog>

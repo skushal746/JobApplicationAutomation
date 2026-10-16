@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const jobTypes = [
   { value: 'WORKDAY', label: 'Workday' },
@@ -26,13 +26,16 @@ interface JobEntryForm {
 
 const initialForm: JobEntryForm = { url: '', jobType: '' }
 
-const LIST_PATH = '/dashboard/job-entries'
-
 export default function AddJobEntry() {
   const [form, setForm] = useState<JobEntryForm>(initialForm)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Return to the list with whatever filters it had when the user clicked Add.
+  const listSearch = (location.state as { listSearch?: string } | null)?.listSearch ?? ''
+  const LIST_PATH = `/dashboard/job-entries${listSearch}`
 
   const handleChange = (field: keyof JobEntryForm) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

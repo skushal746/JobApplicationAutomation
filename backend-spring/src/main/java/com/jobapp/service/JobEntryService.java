@@ -4,13 +4,18 @@ import com.jobapp.dto.CreateJobEntryRequest;
 import com.jobapp.dto.UpdateJobEntryRequest;
 import com.jobapp.entity.JobEntry;
 import com.jobapp.entity.JobEntryStatus;
+import com.jobapp.entity.JobType;
 import com.jobapp.repository.JobEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,8 +26,36 @@ public class JobEntryService {
 
     private final JobEntryRepository jobEntryRepository;
 
-    public List<JobEntry> getAllForUser(Long userId) {
-        return jobEntryRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    /**
+     * Returns the user's entries, newest first. Every filter is optional.
+     * from and to are inclusive calendar days applied to createdAt:
+     * only from means that day onwards, only to means up to the end of that day,
+     * and both means the range between them.
+     */
+    public List<JobEntry> search(Long userId, LocalDate from, LocalDate to,
+                                 JobEntryStatus status, JobType jobType) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'from' date must not be after 'to' date");
+        }
+
+        Specification<JobEntry> spec = (root, query, cb) -> cb.equal(root.get("userId"), userId);
+        if (from != null) {
+            LocalDateTime start = from.atStartOfDay();
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("createdAt"), start));
+        }
+        if (to != null) {
+            // Strictly before the next midnight, so the whole 'to' day is included.
+            LocalDateTime endExclusive = to.plusDays(1).atStartOfDay();
+            spec = spec.and((root, query, cb) -> cb.lessThan(root.get("createdAt"), endExclusive));
+        }
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+        if (jobType != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("jobType"), jobType));
+        }
+
+        return jobEntryRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     public JobEntry create(Long userId, CreateJobEntryRequest request) {

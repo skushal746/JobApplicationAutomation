@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useNavigate } from 'react-router-dom'
+import { apiFetch } from '../../auth'
 
 interface UpworkJobForm {
   title: string
@@ -60,7 +61,6 @@ export default function AddUpworkJob() {
     setSubmitting(true)
     setError('')
 
-    const token = localStorage.getItem('token')
     const payload = {
       ...form,
       description: form.description || null,
@@ -71,12 +71,9 @@ export default function AddUpworkJob() {
     }
 
     try {
-      const res = await fetch('/api/upwork-jobs', {
+      const res = await apiFetch('/api/upwork-jobs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 

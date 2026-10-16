@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useNavigate } from 'react-router-dom'
+import { apiFetch } from '../../auth'
 
 interface UpworkJob {
   id: number
@@ -46,10 +47,7 @@ export default function UpworkJobsPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    fetch('/api/upwork-jobs', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch('/api/upwork-jobs')
       .then(res => {
         if (!res.ok) throw new Error('Failed to load jobs')
         return res.json()
@@ -65,11 +63,7 @@ export default function UpworkJobsPage() {
   }
 
   const handleDelete = (id: number) => {
-    const token = localStorage.getItem('token')
-    fetch(`/api/upwork-jobs/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => {
+    apiFetch(`/api/upwork-jobs/${id}`, { method: 'DELETE' }).then(res => {
       if (res.ok) setJobs(prev => prev.filter(j => j.id !== id))
     })
   }

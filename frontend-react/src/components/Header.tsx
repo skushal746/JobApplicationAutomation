@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppBar, Toolbar, Avatar, Box, Typography, Menu, MenuItem, ListItemIcon } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
+import { clearToken } from '../auth'
 
 export default function Header() {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ export default function Header() {
   }
 
   function handleLogout() {
-    localStorage.removeItem('token')
+    clearToken()
     handleClose()
     navigate('/login')
   }

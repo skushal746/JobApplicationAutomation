@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { apiFetch } from '../../auth'
 
 const jobTypes = [
   { value: 'WORKDAY', label: 'Workday' },
@@ -50,14 +51,10 @@ export default function AddJobEntry() {
 
     // Only url and jobType are sent. The backend sets the user from the token,
     // the status to PENDING and the created time.
-    const token = localStorage.getItem('token')
     try {
-      const res = await fetch('/api/job-entries', {
+      const res = await apiFetch('/api/job-entries', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: form.url.trim(), jobType: form.jobType }),
       })
 

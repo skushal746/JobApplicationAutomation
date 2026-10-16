@@ -1,8 +1,15 @@
-import { useState, FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState, FormEvent } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { clearToken } from '../auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const sessionExpired = searchParams.get('reason') === 'expired'
+
+  useEffect(() => {
+    if (sessionExpired) clearToken()
+  }, [sessionExpired])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -36,6 +43,9 @@ export default function LoginPage() {
     <div className="auth-container">
       <div className="auth-card">
         <h1>Sign In</h1>
+        {sessionExpired && !error && (
+          <p className="error-msg">Your session has expired. Please sign in again.</p>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>

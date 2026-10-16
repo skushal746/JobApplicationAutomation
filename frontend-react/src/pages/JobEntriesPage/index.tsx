@@ -20,6 +20,7 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { apiFetch } from '../../auth'
 
 type JobType = 'WORKDAY' | 'DIGICERT'
 type JobEntryStatus = 'PENDING' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'SUBMITTED' | 'FAILED'
@@ -98,12 +99,10 @@ export default function JobEntriesPage() {
     // Abort the previous request when filters change quickly, so an older
     // response can never overwrite a newer one.
     const controller = new AbortController()
-    const token = localStorage.getItem('token')
     setLoading(true)
     setError('')
 
-    fetch(`/api/job-entries${queryString ? `?${queryString}` : ''}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    apiFetch(`/api/job-entries${queryString ? `?${queryString}` : ''}`, {
       signal: controller.signal,
     })
       .then(res => {

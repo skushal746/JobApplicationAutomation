@@ -2,6 +2,11 @@
 docker_data/
 data/
 
+# Worker: logged-in browser session and application screenshots (personal data)
+worker/.browser-profile/
+worker/screenshots/
+worker/profile.json
+
 # Python
 __pycache__/
 *.py[cod]

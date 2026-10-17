@@ -1,0 +1,13 @@
+{
+  "email": "you@example.com",
+  "resumePath": "/Users/you/Documents/resume.pdf",
+  "fields": {
+    "First Name": "Jane",
+    "Last Name": "Doe",
+    "Phone Number": "5550100100",
+    "Address Line 1": "1 Main Street",
+    "City": "New York",
+    "ZIP Code": "10001",
+    "LinkedIn Profile URL": "https://www.linkedin.com/in/your-profile"
+  }
+}

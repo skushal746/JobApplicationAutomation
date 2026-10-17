@@ -22,7 +22,7 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiFetch } from '../../auth'
 
-type JobType = 'WORKDAY' | 'DIGICERT'
+type JobType = 'WORKDAY' | 'DIGICERT' | 'ORACLE'
 type JobEntryStatus = 'PENDING' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'SUBMITTED' | 'FAILED'
 
 interface JobEntry {
@@ -35,7 +35,7 @@ interface JobEntry {
   updatedAt: string | null
 }
 
-const JOB_TYPES: JobType[] = ['WORKDAY', 'DIGICERT']
+const JOB_TYPES: JobType[] = ['WORKDAY', 'DIGICERT', 'ORACLE']
 const STATUSES: JobEntryStatus[] = ['PENDING', 'IN_PROGRESS', 'NEEDS_REVIEW', 'SUBMITTED', 'FAILED']
 
 // Filter names double as URL query keys, both on this page and in the API call.

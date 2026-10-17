@@ -6,5 +6,7 @@ package com.jobapp.entity;
  */
 public enum JobType {
     WORKDAY,
-    DIGICERT
+    DIGICERT,
+    /** Oracle Recruiting Cloud candidate sites, e.g. JPMorgan Chase (jpmc.fa.oraclecloud.com). */
+    ORACLE
 }

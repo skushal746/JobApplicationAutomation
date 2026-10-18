@@ -37,6 +37,14 @@ npm run once   # check once and exit
 
 Keep the terminal visible: it prints `ACTION NEEDED` when you have to do something in Chrome.
 
+## Run now
+
+The **Run now** button on the Job Entries page starts a run without waiting for the next
+30-minute check. The worker asks the backend every 10 seconds whether it was clicked, so a
+run starts within about 10 seconds. If the worker isn't running, the request waits and runs
+when you start it. The page also shows whether the worker is offline, idle or running.
+`npm run once` does not listen for Run now.
+
 ## Filling more fields
 
 After each step the worker logs `still empty: …` with the labels of empty fields. Copy any

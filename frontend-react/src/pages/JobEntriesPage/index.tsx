@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add'
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiFetch } from '../../auth'
+import WorkerRunButton from '../../components/WorkerRunButton'
 
 type JobType = 'WORKDAY' | 'DIGICERT' | 'ORACLE'
 type JobEntryStatus = 'PENDING' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'SUBMITTED' | 'FAILED'
@@ -70,6 +71,9 @@ export default function JobEntriesPage() {
   const [entries, setEntries] = useState<JobEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // Bumped when a worker run finishes, to reload statuses the worker changed.
+  const [refreshKey, setRefreshKey] = useState(0)
+  const lastQueryRef = useRef<string | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -99,7 +103,9 @@ export default function JobEntriesPage() {
     // Abort the previous request when filters change quickly, so an older
     // response can never overwrite a newer one.
     const controller = new AbortController()
-    setLoading(true)
+    // Show the spinner for new filters, but refresh quietly after a worker run.
+    if (lastQueryRef.current !== queryString) setLoading(true)
+    lastQueryRef.current = queryString
     setError('')
 
     apiFetch(`/api/job-entries${queryString ? `?${queryString}` : ''}`, {
@@ -118,7 +124,7 @@ export default function JobEntriesPage() {
       })
 
     return () => controller.abort()
-  }, [queryString, invalidRange])
+  }, [queryString, invalidRange, refreshKey])
 
   const setFilter = (key: FilterKey) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const next = new URLSearchParams(searchParams)
@@ -214,6 +220,8 @@ export default function JobEntriesPage() {
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
           Job Entries
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <WorkerRunButton onRunFinished={() => setRefreshKey(key => key + 1)} />
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -229,6 +237,7 @@ export default function JobEntriesPage() {
         >
           Add Job Entry
         </Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 2.5 }}>

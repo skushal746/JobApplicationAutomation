@@ -1,6 +1,6 @@
 import { config } from './config'
 import { log } from './log'
-import type { JobEntry, JobEntryStatus } from './types'
+import type { JobEntry, JobEntryStatus, WorkerState, WorkerStatus } from './types'
 
 /**
  * Talks to the Spring backend as the configured user. Logs in lazily and once more
@@ -8,8 +8,17 @@ import type { JobEntry, JobEntryStatus } from './types'
  */
 export class BackendClient {
   private token: string | null = null
+  // Shared so the heartbeat and a run starting at the same moment log in only once.
+  private loginInFlight: Promise<string> | null = null
 
-  private async login(): Promise<string> {
+  private login(): Promise<string> {
+    this.loginInFlight ??= this.doLogin().finally(() => {
+      this.loginInFlight = null
+    })
+    return this.loginInFlight
+  }
+
+  private async doLogin(): Promise<string> {
     const res = await fetch(`${config.apiUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,6 +49,23 @@ export class BackendClient {
     const res = await this.request(`/api/job-entries?status=${status}`)
     const entries = (await res.json()) as JobEntry[]
     return entries.reverse()
+  }
+
+  /** Reports the worker's state; the answer says whether "Run now" was clicked. */
+  async heartbeat(state: WorkerState): Promise<WorkerStatus> {
+    const res = await this.request('/api/worker/heartbeat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state }),
+    })
+    return (await res.json()) as WorkerStatus
+  }
+
+  /** Takes the pending "Run now" request. False if there was none left to take. */
+  async claimRun(): Promise<boolean> {
+    const res = await this.request('/api/worker/run/claim', { method: 'POST' })
+    const { claimed } = (await res.json()) as { claimed: boolean }
+    return claimed
   }
 
   async setStatus(id: number, status: JobEntryStatus): Promise<JobEntry> {

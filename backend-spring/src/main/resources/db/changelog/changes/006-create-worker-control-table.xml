@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <!--
+        One row per user. Lets the UI ask the worker on the user's machine for an
+        immediate run ("Run now"), and lets the worker report whether it is online.
+          run_requested_at: set by "Run now", cleared when the worker claims the request
+          state / last_seen_at: reported by the worker every few seconds
+    -->
+    <changeSet id="006" author="jobapp">
+        <createTable tableName="worker_control">
+            <column name="user_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"
+                             foreignKeyName="fk_worker_control_user"
+                             referencedTableName="users"
+                             referencedColumnNames="id"
+                             deleteCascade="true"/>
+            </column>
+            <column name="run_requested_at" type="DATETIME"/>
+            <column name="state" type="VARCHAR(20)"/>
+            <column name="last_seen_at" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

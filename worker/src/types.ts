@@ -12,6 +12,16 @@ export interface JobEntry {
   updatedAt: string | null
 }
 
+export type WorkerState = 'IDLE' | 'RUNNING' | 'STOPPED'
+
+export interface WorkerStatus {
+  runRequested: boolean
+  runRequestedAt: string | null
+  state: WorkerState | null
+  lastSeenAt: string | null
+  online: boolean
+}
+
 export interface ApplicantProfile {
   /** Email used to sign in to the employer's candidate site. */
   email: string

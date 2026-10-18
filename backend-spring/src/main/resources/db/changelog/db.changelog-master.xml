@@ -11,5 +11,7 @@
     <include file="db/changelog/changes/004-create-job-entry-table.xml"/>
     <include file="db/changelog/changes/005-make-job-entry-updated-at-nullable.xml"/>
     <include file="db/changelog/changes/006-create-worker-control-table.xml"/>
+    <include file="db/changelog/changes/007-add-job-type-check-constraint.xml"/>
+    <include file="db/changelog/changes/008-remove-oracle-job-type.xml"/>
 
 </databaseChangeLog>

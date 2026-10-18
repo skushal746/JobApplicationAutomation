@@ -14,7 +14,8 @@ For each entry it:
 
 Any error sets `FAILED`, with a screenshot in `screenshots/`.
 
-Supported today: `ORACLE` (Oracle Recruiting Cloud, e.g. JPMorgan Chase). Entries of other
+Supported today: `AKAMAI_ORACLECLOUD` (Akamai's Oracle Recruiting Cloud site, run by
+`adapters/oracle.ts`, which works on any Oracle Recruiting Cloud site). Entries of other
 types are skipped and stay `PENDING`.
 
 ## Setup

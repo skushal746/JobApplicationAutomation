@@ -23,7 +23,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiFetch } from '../../auth'
 import WorkerRunButton from '../../components/WorkerRunButton'
 
-type JobType = 'WORKDAY' | 'DIGICERT' | 'ORACLE'
+type JobType = 'WORKDAY' | 'DIGICERT' | 'AKAMAI_ORACLECLOUD'
 type JobEntryStatus = 'PENDING' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'SUBMITTED' | 'FAILED'
 
 interface JobEntry {
@@ -36,7 +36,7 @@ interface JobEntry {
   updatedAt: string | null
 }
 
-const JOB_TYPES: JobType[] = ['WORKDAY', 'DIGICERT', 'ORACLE']
+const JOB_TYPES: JobType[] = ['WORKDAY', 'DIGICERT', 'AKAMAI_ORACLECLOUD']
 const STATUSES: JobEntryStatus[] = ['PENDING', 'IN_PROGRESS', 'NEEDS_REVIEW', 'SUBMITTED', 'FAILED']
 
 // Filter names double as URL query keys, both on this page and in the API call.

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <!--
+        Removes ORACLE from the allowed job_entry.job_type values; Oracle Cloud sites now
+        get one type per company (e.g. AKAMAI_ORACLECLOUD). Halts instead of running if
+        any entry still uses ORACLE, so no row is left violating the constraint.
+    -->
+    <changeSet id="008" author="jobapp">
+        <preConditions onFail="HALT"
+                       onFailMessage="job_entry rows still use job_type ORACLE; change them to another type first">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM job_entry WHERE job_type = 'ORACLE'</sqlCheck>
+        </preConditions>
+        <sql>ALTER TABLE job_entry DROP CHECK chk_job_entry_job_type</sql>
+        <sql>
+            ALTER TABLE job_entry
+                ADD CONSTRAINT chk_job_entry_job_type
+                CHECK (job_type IN ('WORKDAY', 'DIGICERT', 'AKAMAI_ORACLECLOUD'))
+        </sql>
+        <rollback>
+            <sql>ALTER TABLE job_entry DROP CHECK chk_job_entry_job_type</sql>
+            <sql>
+                ALTER TABLE job_entry
+                    ADD CONSTRAINT chk_job_entry_job_type
+                    CHECK (job_type IN ('WORKDAY', 'DIGICERT', 'ORACLE', 'AKAMAI_ORACLECLOUD'))
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

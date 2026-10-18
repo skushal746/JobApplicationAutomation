@@ -16,7 +16,7 @@ import { apiFetch } from '../../auth'
 const jobTypes = [
   { value: 'WORKDAY', label: 'Workday' },
   { value: 'DIGICERT', label: 'Digicert' },
-  { value: 'ORACLE', label: 'Oracle (e.g. JPMorgan Chase)' },
+  { value: 'AKAMAI_ORACLECLOUD', label: 'Akamai (Oracle Cloud)' },
 ] as const
 
 type JobType = (typeof jobTypes)[number]['value']

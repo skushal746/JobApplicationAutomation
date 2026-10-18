@@ -9,6 +9,7 @@
         job_type and status are stored as VARCHAR rather than native MySQL ENUMs.
         Allowed values live in the Java enums com.jobapp.entity.JobType and
         com.jobapp.entity.JobEntryStatus, so adding a value needs no ALTER TABLE.
+        (Since changeset 007, job_type also has a CHECK constraint listing the values.)
 
         url is capped at 700 characters so the (user_id, url) unique key stays under
         InnoDB's 3072-byte index limit: 700 chars x 4 bytes (utf8mb4) + 8 bytes (BIGINT).

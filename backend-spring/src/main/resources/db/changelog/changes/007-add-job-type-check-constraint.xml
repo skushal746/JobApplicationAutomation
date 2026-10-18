@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <!--
+        Restricts job_entry.job_type to the values of com.jobapp.entity.JobType, so the
+        database rejects anything else, including rows written outside the backend.
+        Adding a JobType value from now on needs a changeset that drops and re-adds
+        this constraint with the new list.
+    -->
+    <changeSet id="007" author="jobapp">
+        <sql>
+            ALTER TABLE job_entry
+                ADD CONSTRAINT chk_job_entry_job_type
+                CHECK (job_type IN ('WORKDAY', 'DIGICERT', 'ORACLE', 'AKAMAI_ORACLECLOUD'))
+        </sql>
+        <rollback>
+            <sql>ALTER TABLE job_entry DROP CHECK chk_job_entry_job_type</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

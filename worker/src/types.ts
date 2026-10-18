@@ -1,5 +1,5 @@
 // Mirrors the backend's JobType and JobEntryStatus enums.
-export type JobType = 'WORKDAY' | 'DIGICERT' | 'ORACLE'
+export type JobType = 'WORKDAY' | 'DIGICERT' | 'AKAMAI_ORACLECLOUD'
 export type JobEntryStatus = 'PENDING' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'SUBMITTED' | 'FAILED'
 
 export interface JobEntry {

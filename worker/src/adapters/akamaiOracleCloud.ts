@@ -5,14 +5,15 @@ import { log } from '../log'
 import type { Adapter, ApplyContext, ApplyOutcome } from './types'
 
 /*
- * Oracle Recruiting Cloud "Candidate Experience" sites, e.g. JPMorgan Chase:
- *   https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/<id>
+ * Akamai's careers site (job type AKAMAI_ORACLECLOUD), hosted on Oracle Recruiting
+ * Cloud's "Candidate Experience":
+ *   https://<tenant>.oraclecloud.com/hcmUI/CandidateExperience/en/sites/<site>/job/<id>
  *
- * Verified against the live JPMorgan site up to the email screen (".../apply/email"):
- * an "APPLY NOW" button, an "Email Address" field, an "I agree with the terms and
- * conditions" checkbox, a NEXT button, hidden CAPTCHA widgets and a honeypot field.
- * The screens after the emailed code have not been seen yet, so form filling past
- * sign-in is label-driven and stops for you whenever it is unsure.
+ * The flow was checked on another site built on the same Oracle platform, up to the
+ * email screen (".../apply/email"): an "APPLY NOW" button, an "Email Address" field, an
+ * "I agree with the terms and conditions" checkbox, a NEXT button, hidden CAPTCHA widgets
+ * and a honeypot field. The screens after the emailed code have not been seen yet, so
+ * form filling past sign-in is label-driven and stops for you whenever it is unsure.
  */
 
 const MAX_FORM_STEPS = 15
@@ -22,7 +23,7 @@ const APPLY_PAGE = /\/job\/[^/]+\/apply(\/|$|\?)/i
 const EMAIL_SCREEN = /\/apply\/email/i
 const CODE_SCREEN = /\/apply\/(pin|code|verif)/i
 
-function isOracleCandidateSite(url: string): boolean {
+function isCandidateExperienceSite(url: string): boolean {
   try {
     const { hostname, pathname } = new URL(url)
     return hostname.endsWith('.oraclecloud.com') && /\/CandidateExperience\//i.test(pathname)
@@ -56,7 +57,7 @@ async function onSignInScreens(page: Page): Promise<boolean> {
 /** Fills the email, then waits while you agree to the terms, click NEXT and enter the code. */
 async function signIn(page: Page, email: string): Promise<boolean> {
   // Matched by name: the label "Email Address" also matches a second element on the
-  // live JPMorgan page, which makes a label lookup ambiguous.
+  // page, which makes a label lookup ambiguous.
   const emailInput = page.locator('input[name="primary-email"]').first()
   if (await emailInput.isVisible().catch(() => false)) {
     if ((await emailInput.inputValue()) === '') await emailInput.fill(email)
@@ -134,13 +135,13 @@ export async function fillApplication(page: Page, ctx: ApplyContext): Promise<Ap
   return { kind: 'ready', note: `Stopped after ${MAX_FORM_STEPS} steps` }
 }
 
-export const oracleAdapter: Adapter = {
-  name: 'Oracle Recruiting Cloud',
+export const akamaiOracleCloudAdapter: Adapter = {
+  name: 'Akamai (Oracle Recruiting Cloud)',
 
   async apply(ctx) {
     const { page, entry, profile } = ctx
-    if (!isOracleCandidateSite(entry.url)) {
-      return { kind: 'failed', reason: 'URL is not an Oracle Candidate Experience job page' }
+    if (!isCandidateExperienceSite(entry.url)) {
+      return { kind: 'failed', reason: 'URL is not an Akamai Candidate Experience job page on oraclecloud.com' }
     }
 
     await page.goto(entry.url, { waitUntil: 'domcontentloaded', timeout: 60_000 })

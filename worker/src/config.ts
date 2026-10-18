@@ -18,8 +18,13 @@ function minutes(name: string, fallback: number): number {
 
 export const config = {
   apiUrl: (process.env.API_URL ?? 'http://localhost:8080').replace(/\/$/, ''),
-  appEmail: required('APP_EMAIL'),
-  appPassword: required('APP_PASSWORD'),
+  // Read when first used, so `npm run try` works without a .env (it never calls the backend).
+  get appEmail() {
+    return required('APP_EMAIL')
+  },
+  get appPassword() {
+    return required('APP_PASSWORD')
+  },
   pollIntervalMs: minutes('POLL_INTERVAL_MINUTES', 30),
   signInTimeoutMs: minutes('SIGN_IN_TIMEOUT_MINUTES', 10),
   reviewTimeoutMs: minutes('REVIEW_TIMEOUT_MINUTES', 30),

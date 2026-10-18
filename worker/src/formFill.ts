@@ -82,7 +82,7 @@ export async function listEmptyFields(page: Page): Promise<string[]> {
   return page.evaluate(LIST_EMPTY_FIELDS_SCRIPT) as Promise<string[]>
 }
 
-/** Oracle shows an idle-session dialog; keep the session alive while the worker or you are working. */
+/** Candidate sites show an idle-session dialog; keep the session alive while the worker or you are working. */
 export async function keepSessionAlive(page: Page) {
   const button = page.getByRole('button', { name: /^continue working$/i })
   if (await button.isVisible().catch(() => false)) await button.click().catch(() => {})

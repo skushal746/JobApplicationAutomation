@@ -7,6 +7,9 @@ import type { JobEntry, JobEntryStatus, WorkerState, WorkerStatus } from './type
  * when a request gets 401, since backend tokens expire after 24 hours.
  */
 export class BackendClient {
+  // Read here so a missing APP_EMAIL / APP_PASSWORD stops the worker at startup.
+  private readonly email = config.appEmail
+  private readonly password = config.appPassword
   private token: string | null = null
   // Shared so the heartbeat and a run starting at the same moment log in only once.
   private loginInFlight: Promise<string> | null = null
@@ -22,7 +25,7 @@ export class BackendClient {
     const res = await fetch(`${config.apiUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: config.appEmail, password: config.appPassword }),
+      body: JSON.stringify({ email: this.email, password: this.password }),
     })
     if (!res.ok) throw new Error(`Backend login failed with HTTP ${res.status}. Check APP_EMAIL and APP_PASSWORD.`)
     const { token } = (await res.json()) as { token: string }

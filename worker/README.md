@@ -14,8 +14,8 @@ For each entry it:
 
 Any error sets `FAILED`, with a screenshot in `screenshots/`.
 
-Supported today: `AKAMAI_ORACLECLOUD` (Akamai's Oracle Recruiting Cloud site, run by
-`adapters/oracle.ts`, which works on any Oracle Recruiting Cloud site). Entries of other
+Supported today: `AKAMAI_ORACLECLOUD` (Akamai's careers site, run by
+`adapters/akamaiOracleCloud.ts`). Entries of other
 types are skipped and stay `PENDING`.
 
 ## Setup
@@ -37,6 +37,19 @@ npm run once   # check once and exit
 ```
 
 Keep the terminal visible: it prints `ACTION NEEDED` when you have to do something in Chrome.
+
+## Try one URL
+
+Runs the script for a job type against a single posting, without the backend or a job
+entry, and without changing any status. Handy for checking a new site. Needs `profile.json`
+but not `.env`.
+
+```bash
+npm run try -- "<job url>"                    # AKAMAI_ORACLECLOUD by default
+npm run try -- "<job url>" AKAMAI_ORACLECLOUD
+```
+
+It stops before Submit and keeps Chrome open until you close the window or press Ctrl+C.
 
 ## Run now
 
